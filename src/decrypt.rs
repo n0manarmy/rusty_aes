@@ -112,9 +112,13 @@ mod tests {
 
     #[test]
     pub fn test_manual_decrypt() {
-        let input: Vec<u8> = "5ffb7e447fff8c3c234c59e412f24ed2196b70c384985f6fcdc919a676410aa93e6ebb236526eb17a580435a842bb2a4".as_bytes().to_vec();
-        let key = "YELLOW SUBMARINE".as_bytes().to_vec();
-    
+        let input = "f6d6bba9f488c9e2bda504273828112f7d9fc76fe885250877ecbe77b019d10c6bae36c20d012c7821e01caf7e6b21862279c04d2ca230df2062fbc235a2afad929b25807e924f93db965c7ed258b1ed";
+        let input = hex_encoders::str_to_hex_u8_buf(input);
+        let key = "YELLOW SUBMARINE";
+        // let key = "YELLOW SUBMARINE".as_bytes().to_vec();
+        let key = hex_encoders::ascii_to_ascii_hex(&key);
+        let key = hex_encoders::str_to_hex_u8_buf(&key);
+        // let key: Vec<u8> = key.chars().map(|x| x.to_digit(16).unwrap() as u8).collect::<Vec<u8>>();
         //instantiate our aes decryptor
         let decrypt: Decrypt = Decrypt::new(key);
         
@@ -170,14 +174,14 @@ mod tests {
             print!("{:02x}", i);
         }
         println!("build cipher");
-        let cipher = "000102030405060708090a0b0c0d0e0f";
-        let cipher: Vec<u8> =hex_encoders::str_to_hex_u8_buf(cipher);
-        assert_eq!(cipher.len(), 16);
+        let key = "000102030405060708090a0b0c0d0e0f";
+        let key: Vec<u8> =hex_encoders::str_to_hex_u8_buf(key);
+        assert_eq!(key.len(), 16);
 
         let result = "00112233445566778899aabbccddeeff";
 
         println!("init decryptor");
-        let decryptor = Decrypt::new(cipher);
+        let decryptor = Decrypt::new(key);
         println!("start decryptor");
         let output: Vec<u8> = decryptor.decrypt(input);
         // let output: String = hex::encoders::hex_buf_to_str(output);

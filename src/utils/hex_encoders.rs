@@ -21,6 +21,16 @@ pub fn str_to_hex_val(buf: String) -> Vec<u32> {
     hex_buf
 }
 
+pub fn ascii_to_ascii_hex(buf: &str) -> String {
+    let mut r: String = String::new();
+    use std::fmt::Write as FmtWrite;
+    for b in buf.as_bytes() {
+        write!(r, "{:02x}", b);
+    }
+
+    r
+}
+
 pub fn str_to_hex_u8_buf(buf: &str) -> Vec<u8> {
     let mut hex_buf: Vec<u8> = Vec::new();
     

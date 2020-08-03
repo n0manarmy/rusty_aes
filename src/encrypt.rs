@@ -110,7 +110,7 @@ mod tests {
 
     #[test]
     pub fn test_manual_encrypt() {
-        let input: Vec<u8> = "This is a bunch of data that I want to encrypt".as_bytes().to_vec();
+        let input: Vec<u8> = "This is a test of the ability to encrypt and then decrypt the message".as_bytes().to_vec();
         let key: Vec<u8> = "YELLOW SUBMARINE".as_bytes().to_vec();
         let encrypt: Encrypt = Encrypt::new(key);
         let buf_size = 16;
@@ -157,6 +157,7 @@ mod tests {
     pub fn test_encrypt_plain_128() {
         let input = "00112233445566778899aabbccddeeff";
         let input: Vec<u8> = hex_encoders::str_to_hex_u8_buf(input);
+        assert_eq!(input.len(), 16);
         let cipher = "000102030405060708090a0b0c0d0e0f";
         let cipher: Vec<u8> = hex_encoders::str_to_hex_u8_buf(cipher);
 
