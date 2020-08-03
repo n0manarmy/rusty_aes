@@ -28,50 +28,50 @@ impl Encrypt {
         }
     }
 
-    pub fn encrypt(self, input: Vec<u8>) -> Vec<u8> {
+    pub fn encrypt(&self, input: Vec<u8>) -> Vec<u8> {
         let mut x = 0;
-        print!("{} - input", x);
-        print_state(&input);
-        assert_eq!(&input, &cipher_128((x, "input")));
+        // print!("{} - input", x);
+        // print_state(&input);
+        // assert_eq!(&input, &cipher_128((x, "input")));
 
         // let mut state = helper::transform_state(input);
         let mut state = input;
 
-        print!("{} - k_sch", x);
+        // print!("{} - k_sch", x);
         let ik_sch: Vec<u8> = key_sch::get(0, &self.expanded_key);
-        print_state(&ik_sch);
-        assert_eq!(&ik_sch, &cipher_128((x, "k_sch")));
+        // print_state(&ik_sch);
+        // assert_eq!(&ik_sch, &cipher_128((x, "k_sch")));
         state = add_round_key::xor(state, ik_sch);
 
         while x < (self.rounds - 1) {
             x += 1;
-            print!("\n{} - start", x);
-            print_state(&state);
-            assert_eq!(&state, &cipher_128((x, "start")));
+            // print!("\n{} - start", x);
+            // print_state(&state);
+            // assert_eq!(&state, &cipher_128((x, "start")));
 
-            print!("\n{} - s_box", x);
+            // print!("\n{} - s_box", x);
             state = state.iter().map(|x| tables::s_box(*x)).collect();
-            print_state(&state);
-            assert_eq!(&state, &cipher_128((x, "s_box")));
+            // print_state(&state);
+            // assert_eq!(&state, &cipher_128((x, "s_box")));
 
-            print!("\n{} - s_row", x);
+            // print!("\n{} - s_row", x);
             state = shift_rows::shift(state);
-            print_state(&state);
-            assert_eq!(&state, &cipher_128((x, "s_row")));
+            // print_state(&state);
+            // assert_eq!(&state, &cipher_128((x, "s_row")));
 
-            print!("\n{} - m_col", x);
+            // print!("\n{} - m_col", x);
             // state = mix_columns::table_mix(state);
             state = mix_columns::table_mix(state);
-            print_state(&state);
-            assert_eq!(&state, &cipher_128((x, "m_col")));
+            // print_state(&state);
+            // assert_eq!(&state, &cipher_128((x, "m_col")));
 
-            print!("\n{} - k_sch", x);
+            // print!("\n{} - k_sch", x);
             // let ik_sch: Vec<u8> = helper::transform_state(
                 // helper::get_this_round_exp_key(x as usize, &self.expanded_key));
             
             let ik_sch: Vec<u8> = key_sch::get(x as usize, &self.expanded_key);
-            print_state(&ik_sch);
-            assert_eq!(&ik_sch, &cipher_128((x, "k_sch")));
+            // print_state(&ik_sch);
+            // assert_eq!(&ik_sch, &cipher_128((x, "k_sch")));
 
             // print!("\n{} - k_add", x);
             state = add_round_key::xor(state, ik_sch);
@@ -79,21 +79,21 @@ impl Encrypt {
         }
 
         x += 1;
-        print!("\n{} - s_box", self.rounds);
+        // print!("\n{} - s_box", self.rounds);
         state = state.iter().map(|x| tables::s_box(*x)).collect();
-        print_state(&state);
-        assert_eq!(&state, &cipher_128((x, "s_box")));
+        // print_state(&state);
+        // assert_eq!(&state, &cipher_128((x, "s_box")));
 
-        print!("\n{} - s_row", self.rounds);
+        // print!("\n{} - s_row", self.rounds);
         state = shift_rows::shift(state);
-        print_state(&state);
-        assert_eq!(&state, &cipher_128((x, "s_row")));
+        // print_state(&state);
+        // assert_eq!(&state, &cipher_128((x, "s_row")));
 
-        print!("k_sch");
+        // print!("k_sch");
         // let ik_sch: Vec<u8> = helper::transform_state(helper::get_this_round_exp_key(self.rounds as usize, &self.expanded_key));
         let ik_sch: Vec<u8> = key_sch::get(self.rounds as usize, &self.expanded_key);
-        print_state(&ik_sch);
-        assert_eq!(&ik_sch, &cipher_128((x, "k_sch")));
+        // print_state(&ik_sch);
+        // assert_eq!(&ik_sch, &cipher_128((x, "k_sch")));
 
         state = add_round_key::xor(state, ik_sch);        
 
@@ -108,6 +108,37 @@ mod tests {
     use super::*;
     use crate::utils::{hex_encoders, printer::print_state};
 
+    #[test]
+    pub fn test_manual_encrypt() {
+        let input: Vec<u8> = "This is a bunch of data that I want to encrypt".as_bytes().to_vec();
+        let key: Vec<u8> = "YELLOW SUBMARINE".as_bytes().to_vec();
+        let encrypt: Encrypt = Encrypt::new(key);
+        let buf_size = 16;
+        let mut count = 0;
+        let mut buf: Vec<u8> = Vec::new();
+
+        while count < input.len() {
+            if count + buf_size >= input.len() {
+                let mut slice = input[count..count + (input.len() - count)].to_vec();
+                let padding = buf_size - slice.len() ;
+                for z in 0..padding {
+                    slice.push(0x80);
+                }
+                buf.append(&mut encrypt.encrypt(slice));
+            }
+            else {
+                let slice = input[count..(count + buf_size)].to_vec();
+                assert_eq!(slice.len(), buf_size);
+                buf.append(&mut encrypt.encrypt(slice));
+            }
+            count += buf_size;
+        }
+
+        for b in buf {
+            print!("{:02x}", b);
+        }
+        println!();
+    }
     #[test]
     pub fn test_encrypt_128() {
         let input: Vec<u8> = vec![0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d, 0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34];

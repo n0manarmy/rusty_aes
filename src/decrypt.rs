@@ -28,22 +28,22 @@ impl Decrypt {
         }
     }
 
-    pub fn decrypt(self, input: Vec<u8>) -> Vec<u8> {
+    pub fn decrypt(&self, input: Vec<u8>) -> Vec<u8> {
         let mut x = 0;
-        print!("{} -- iinput",x);
-        print_state(&input);
-        assert_eq!(&input, &test_tables::inv_cipher_128((x,"iinput")));
+        // print!("{} -- iinput",x);
+        // print_state(&input);
+        // assert_eq!(&input, &test_tables::inv_cipher_128((x,"iinput")));
 
         // print!("transform input state");
         // let mut state = helper::transform_state(input);
         // print_state(&state);
 
-        print!("{} - ik_sch", x);
+        // print!("{} - ik_sch", x);
         // let ik_sch: Vec<u8> = helper::transform_state(
         //     helper::get_this_round_exp_key(self.rounds as usize, &self.expanded_key));
         let ik_sch: Vec<u8> = key_sch::get(self.rounds as usize, &self.expanded_key);
-        print_state(&ik_sch);
-        assert_eq!(&ik_sch, &test_tables::inv_cipher_128((x,"ik_sch")));
+        // print_state(&ik_sch);
+        // assert_eq!(&ik_sch, &test_tables::inv_cipher_128((x,"ik_sch")));
         // let ik_sch = helper::transform_state(ik_sch);
 
         // print!("start add round key");
@@ -52,55 +52,53 @@ impl Decrypt {
 
         while x < (self.rounds - 1) {
             x += 1;
-            print!("\n{} - istart", x);
-            // state = helper::transform_state(state);
-            print_state(&state);
-            assert_eq!(&state, &test_tables::inv_cipher_128((x,"istart")));
+            // print!("\n{} - istart", x);
+            // print_state(&state);
+            // assert_eq!(&state, &test_tables::inv_cipher_128((x,"istart")));
 
-            print!("\n{} - is_row", x);
+            // print!("\n{} - is_row", x);
             state = inv_shift_rows::shift(state);
-            print_state(&state);
-            assert_eq!(&state, &test_tables::inv_cipher_128((x,"is_row")));
+            // print_state(&state);
+            // assert_eq!(&state, &test_tables::inv_cipher_128((x,"is_row")));
 
-            print!("\n{} - is_box", x);
+            // print!("\n{} - is_box", x);
             state = state.iter().map(|x| tables::inv_s_box(*x)).collect();
-            print_state(&state);
-            assert_eq!(&state, &test_tables::inv_cipher_128((x,"is_box")));
+            // print_state(&state);
+            // assert_eq!(&state, &test_tables::inv_cipher_128((x,"is_box")));
 
-            print!("\n{} - ik_sch", x);
+            // print!("\n{} - ik_sch", x);
             let ik_sch: Vec<u8> = key_sch::get((self.rounds - x) as usize, &self.expanded_key);
-            print_state(&ik_sch);
-            assert_eq!(&ik_sch, &test_tables::inv_cipher_128((x,"ik_sch")));
+            // print_state(&ik_sch);
+            // assert_eq!(&ik_sch, &test_tables::inv_cipher_128((x,"ik_sch")));
 
-            print!("\n{} - ik_add", x);
+            // print!("\n{} - ik_add", x);
             state = add_round_key::xor(state, ik_sch);
-            print_state(&state);
-            assert_eq!(&state, &test_tables::inv_cipher_128((x,"ik_add")));
+            // print_state(&state);
+            // assert_eq!(&state, &test_tables::inv_cipher_128((x,"ik_add")));
 
-            print!("\n{} - im_col", x);
+            // print!("\n{} - im_col", x);
             state = inv_mix_cols::mix(state);
-            print_state(&state);            
+            // print_state(&state);            
         }
         
-        x += 1;
-        print!("\n{} - inv is_row", x);
+        // x += 1;
+        // print!("\n{} - inv is_row", x);
         state = inv_shift_rows::shift(state);
-        print_state(&state);
+        // print_state(&state);
 
-        print!("\n{} - is_box", x);
+        // print!("\n{} - is_box", x);
         state = state.iter().map(|x| tables::inv_s_box(*x)).collect();
-        print_state(&state);
+        // print_state(&state);
 
-        print!("ik_sch");
+        // print!("ik_sch");
         // let ik_sch: Vec<u8> = helper::transform_state(
         let ik_sch: Vec<u8> = key_sch::get(0, &self.expanded_key);
-        print_state(&ik_sch);
+        // print_state(&ik_sch);
         
-        print!("\n{} - ik_add", 0);
+        // print!("\n{} - ik_add", 0);
         state = add_round_key::xor(state, ik_sch);        
-        print_state(&state);
+        // print_state(&state);
 
-        // helper::transform_state(output)
         state
     }
 }
@@ -111,6 +109,43 @@ mod tests {
 
     use super::*;
     use crate::utils::hex_encoders;
+
+    #[test]
+    pub fn test_manual_decrypt() {
+        let input: Vec<u8> = "5ffb7e447fff8c3c234c59e412f24ed2196b70c384985f6fcdc919a676410aa93e6ebb236526eb17a580435a842bb2a4".as_bytes().to_vec();
+        let key = "YELLOW SUBMARINE".as_bytes().to_vec();
+    
+        //instantiate our aes decryptor
+        let decrypt: Decrypt = Decrypt::new(key);
+        
+        let mut count = 0;
+        let mut buf: Vec<u8> = Vec::new();
+        let buf_len = 16;
+        println!();
+
+        while count < input.len() {
+            if count + buf_len >= input.len() {
+                // buf = enc_str[count..(enc_str.len() - count)].to_vec();
+                let mut slice = input[count..count + (input.len() - count)].to_vec();
+                let padding = buf_len - slice.len() ;
+                for z in 0..padding {
+                    slice.push(0x80);
+                }
+                buf.append(&mut decrypt.decrypt(slice));
+            } 
+            else {
+                let slice = input[count..(count + buf_len)].to_vec();
+                assert_eq!(slice.len(), buf_len);
+                buf.append(&mut decrypt.decrypt(slice));
+            }
+            count += buf_len;
+        }
+
+        for b in buf {
+            print!("{}", b as char);
+        }
+        println!();
+    }
 
     #[test]
     pub fn test_decrypt_128() {

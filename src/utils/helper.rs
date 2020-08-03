@@ -1,5 +1,3 @@
-use super::*;
-
 pub fn xy_idx(x: i32, y: i32) -> usize {
     // println!("x: {} y: {}", x, y);
     (y as usize * 4) + x as usize
@@ -41,6 +39,7 @@ pub fn overflow_check(x: u8, y: u8) -> u8 {
 mod tests {
 
     use super::*;
+    use crate::utils::printer;
 
     #[test]
     pub fn test_xy_idx() {
