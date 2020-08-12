@@ -1,3 +1,4 @@
+#[allow(dead_code)]
 pub fn cipher_128(state: (u32, &str)) -> Vec<u8> {
     match state {
         
@@ -57,6 +58,7 @@ pub fn cipher_128(state: (u32, &str)) -> Vec<u8> {
     }
 }
 
+#[allow(dead_code)]
 pub fn inv_cipher_128(state: (u32, &str)) -> Vec<u8> {
     match state {
         ( 0,"iinput")   =>  vec![0x69, 0xc4, 0xe0, 0xd8, 0x6a, 0x7b, 0x04, 0x30, 0xd8, 0xcd, 0xb7, 0x80, 0x70, 0xb4, 0xc5, 0x5a],
@@ -115,8 +117,7 @@ pub fn inv_cipher_128(state: (u32, &str)) -> Vec<u8> {
     }
 }
 
-
-
+#[allow(dead_code)]
 pub fn cipher_key_test_128_bit_vals(pos: usize) -> Vec<u8> {
     let values: Vec<Vec<u8>> = vec![
         vec![0x2b, 0x7e, 0x15, 0x16],

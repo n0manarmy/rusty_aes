@@ -1,4 +1,4 @@
-use crate::utils::helper::t_xy_idx;
+// use crate::utils::helper::t_xy_idx;
 
 pub fn xor(mut state: Vec<u8>, cipher: Vec<u8>) -> Vec<u8>{
     let iter = state.iter().zip(cipher.iter());

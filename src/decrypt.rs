@@ -1,7 +1,5 @@
 use crate::key_expander::expander;
 use crate::utils::tables;
-use crate::test_vals::test_tables;
-use crate::utils::printer::print_state;
 use crate::decrypt_funcs::{inv_mix_cols, inv_shift_rows};
 use crate::encrypt_funcs::{key_sch, add_round_key};
 
@@ -109,6 +107,8 @@ mod tests {
 
     use super::*;
     use crate::utils::hex_encoders;
+    use crate::utils::printer::print_state;
+
 
     #[test]
     pub fn test_manual_decrypt() {
@@ -132,7 +132,7 @@ mod tests {
                 // buf = enc_str[count..(enc_str.len() - count)].to_vec();
                 let mut slice = input[count..count + (input.len() - count)].to_vec();
                 let padding = buf_len - slice.len() ;
-                for z in 0..padding {
+                for _z in 0..padding {
                     slice.push(0x80);
                 }
                 buf.append(&mut decrypt.decrypt(slice));

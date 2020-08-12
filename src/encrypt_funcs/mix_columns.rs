@@ -1,13 +1,11 @@
-use crate::utils::helper::{overflow_check, xy_idx};
+use crate::utils::helper::xy_idx;
 use crate::decrypt_funcs::galois_mult;
 use crate::utils::tables as tbl;
 
 pub fn table_mix(state: Vec<u8>) -> Vec<u8> {
     // println!("##### start mix column");
     let mut t_state: Vec<u8> = vec![0;state.len()];
-    let mut col: usize = 0;
     let mut s_pos: i32 = 0;
-    let x = 0;
     let mut y = 0;
 
     while s_pos < state.len() as i32 {
@@ -32,13 +30,13 @@ fn p_operate(state: &Vec<u8>, y: i32, col: usize) -> u8 {
     t1 ^ t2 ^ t3 ^ t4
 }
 
-fn operate(state: &Vec<u8>, y: i32, col: usize) -> u8 {
-    let t1 = overflow_check(tbl::l_box(state[xy_idx(0, y)]), tbl::l_box(tbl::m_mtrx(0, col)));
-    let t2 = overflow_check(tbl::l_box(state[xy_idx(1, y)]), tbl::l_box(tbl::m_mtrx(1, col)));
-    let t3 = overflow_check(tbl::l_box(state[xy_idx(2, y)]), tbl::l_box(tbl::m_mtrx(2, col)));
-    let t4 = overflow_check(tbl::l_box(state[xy_idx(3, y)]), tbl::l_box(tbl::m_mtrx(3, col)));
-    tbl::e_box(t1) ^ tbl::e_box(t2) ^ tbl::e_box(t3) ^ tbl::e_box(t4)
-}
+// fn operate(state: &Vec<u8>, y: i32, col: usize) -> u8 {
+//     let t1 = overflow_check(tbl::l_box(state[xy_idx(0, y)]), tbl::l_box(tbl::m_mtrx(0, col)));
+//     let t2 = overflow_check(tbl::l_box(state[xy_idx(1, y)]), tbl::l_box(tbl::m_mtrx(1, col)));
+//     let t3 = overflow_check(tbl::l_box(state[xy_idx(2, y)]), tbl::l_box(tbl::m_mtrx(2, col)));
+//     let t4 = overflow_check(tbl::l_box(state[xy_idx(3, y)]), tbl::l_box(tbl::m_mtrx(3, col)));
+//     tbl::e_box(t1) ^ tbl::e_box(t2) ^ tbl::e_box(t3) ^ tbl::e_box(t4)
+// }
 
 
 #[cfg(test)]

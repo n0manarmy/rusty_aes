@@ -1,5 +1,3 @@
-use super::*;
-
 pub fn collect_to_vec(word: u32) -> Vec<u8> {
     let mut val: Vec<u8> = Vec::new();
     val.push(((word & 0xFF000000) >> 24) as u8);
@@ -44,19 +42,6 @@ pub fn rcon(rounds: usize, key_size: usize) -> u32 {
 
 }
 
-// pub fn ek(offset: usize, key: &Vec<u8>) -> u32 {
-//     let mut word: u32 = 0;
-//     for k in offset..offset + 4 {
-//         // dbg!(key[k]);
-//         word |= key[k] as u32;
-//         // dbg!(word);
-//         word <<= 8;
-//         // dbg!(word);
-//     }
-
-//     word
-// }
-
 // we collect 4 bytes from the expanded key into a u32 for manipulation
 pub fn ek(offset: usize, key: &Vec<u8>) -> u32 {
     let mut word: u32 = 0;
@@ -70,16 +55,6 @@ pub fn ek(offset: usize, key: &Vec<u8>) -> u32 {
 
     word
 }
-
-// pub fn k(offset: usize, key: &Vec<u8>) -> u32 {
-//     let mut word: u32 = 0;
-//     for k in offset..offset + 4 {
-//         word |= key[k] as u32;
-//         word <<= 8;
-//     }
-
-//     word
-// }
 
 pub fn k(offset: usize, key: &Vec<u8>) -> Vec<u8> {
     let mut val: Vec<u8> = Vec::new();

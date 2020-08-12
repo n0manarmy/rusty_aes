@@ -7,9 +7,3 @@ pub fn get(round: usize, exp_key: &Vec<u8>) -> Vec<u8> {
 
     this_exp_key
 }
-
-#[cfg(test)]
-mod tests {
-
-    use super::*;
-}

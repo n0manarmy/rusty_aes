@@ -1,6 +1,6 @@
 pub mod decrypt;
 pub mod encrypt;
-mod utils;
+pub mod utils;
 mod key_expander;
 mod test_vals;
 mod encrypt_funcs;

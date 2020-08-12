@@ -1,9 +1,9 @@
 use crate::key_expander::expander;
-use crate::utils::helper;
+// use crate::utils::helper;
 use crate::utils::tables;
-use crate::test_vals::test_tables::cipher_128;
-use crate::utils::printer::print_state;
-use crate::encrypt_funcs::{add_round_key, byte_sub, key_sch, mix_columns, shift_rows};
+// use crate::test_vals::test_tables::cipher_128;
+// use crate::utils::printer::print_state;
+use crate::encrypt_funcs::{add_round_key, key_sch, mix_columns, shift_rows};
 
 pub struct Encrypt {
     expanded_key: Vec<u8>,
@@ -78,7 +78,7 @@ impl Encrypt {
             // print_state(&state);
         }
 
-        x += 1;
+        // x += 1;
         // print!("\n{} - s_box", self.rounds);
         state = state.iter().map(|x| tables::s_box(*x)).collect();
         // print_state(&state);
@@ -121,7 +121,7 @@ mod tests {
             if count + buf_size >= input.len() {
                 let mut slice = input[count..count + (input.len() - count)].to_vec();
                 let padding = buf_size - slice.len() ;
-                for z in 0..padding {
+                for _z in 0..padding {
                     slice.push(0x80);
                 }
                 buf.append(&mut encrypt.encrypt(slice));
