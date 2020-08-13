@@ -3,3 +3,4 @@ pub mod tables;
 pub mod helper;
 pub mod hex_encoders;
 pub mod padder;
+pub mod file_helper;
