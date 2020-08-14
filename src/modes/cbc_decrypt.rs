@@ -3,31 +3,45 @@ use crate::utils::{tables, padder};
 use crate::decrypt_funcs::{inv_mix_cols, inv_shift_rows};
 use crate::encrypt_funcs::{key_sch, add_round_key};
 
-pub fn run(e: &Decrypt, input: Vec<u8>, iv: &Vec<u8>) -> Vec<u8> {
+pub fn run(e: &Decrypt, input: Vec<u8>, init_iv: Vec<u8>) -> Vec<u8> {
     let mut count = 0;
     let buf_size = e.block_size;
     let mut buf: Vec<u8> = Vec::new();
-    let mut iv_applied = false;
+    let mut init_iv_applied = false;
+    let mut next_iv: Vec<u8>;
 
     //loop through input until len reached
     while count < input.len() {
         if count + buf_size >= input.len() {
-            let mut slice = input[count..count + (input.len() - count)].to_vec();
-            // let padding = buf_size - slice.len();
-            slice = padder::pad(slice, e.block_size);
-            // for _z in 0..padding {
-            //     slice.push(0x80);
-            // }
-            let (enc_results, iv_result) = &mut decrypt(&e.expanded_key, e.rounds, slice, &iv, iv_applied);
-            iv_applied = *iv_result;
-            buf.append(enc_results);
+            let mut cipher_text = input[count..count + (input.len() - count)].to_vec();
+            cipher_text = padder::pad(cipher_text, buf_size);
+            next_iv = cipher_text.clone();
+
+            let mut cipher_text = decrypt(&e.expanded_key, e.rounds, cipher_text);
+            
+            if !init_iv_applied {
+                cipher_text = init_iv.iter().zip(cipher_text.iter()).map(|(a,b)| a ^ b).collect::<Vec<u8>>();
+                init_iv_applied = true;
+            } else {
+                cipher_text = next_iv.iter().zip(cipher_text.iter()).map(|(a,b)| a ^ b).collect::<Vec<u8>>();
+            }
+            
+            buf.append(&mut cipher_text);
         }
         else {
-            let slice = input[count..(count + buf_size)].to_vec();
-            assert_eq!(slice.len(), buf_size);
-            let (enc_results, iv_result) = &mut decrypt(&e.expanded_key, e.rounds, slice, &iv, iv_applied);
-            iv_applied = *iv_result;
-            buf.append(enc_results);
+            let cipher_text = input[count..(count + buf_size)].to_vec();            
+            next_iv = cipher_text.clone();
+
+            let mut cipher_text = decrypt(&e.expanded_key, e.rounds, cipher_text);
+            
+            if !init_iv_applied {
+                cipher_text = init_iv.iter().zip(cipher_text.iter()).map(|(a,b)| a ^ b).collect::<Vec<u8>>();
+                init_iv_applied = true;
+            } else {
+                cipher_text = next_iv.iter().zip(cipher_text.iter()).map(|(a,b)| a ^ b).collect::<Vec<u8>>();
+            }
+            
+            buf.append(&mut cipher_text);
         }
         count += buf_size;
     }
@@ -35,7 +49,7 @@ pub fn run(e: &Decrypt, input: Vec<u8>, iv: &Vec<u8>) -> Vec<u8> {
     buf
 }
 
-fn decrypt(expanded_key: &Vec<u8>, rounds: u32, input: Vec<u8>, iv: &Vec<u8>, mut iv_applied: bool) -> (Vec<u8>, bool) {
+fn decrypt(expanded_key: &Vec<u8>, rounds: u32, input: Vec<u8>) -> Vec<u8> {
     let mut x = 0;
     // print!("{} -- iinput",x);
     // print_state(&input);
@@ -87,11 +101,6 @@ fn decrypt(expanded_key: &Vec<u8>, rounds: u32, input: Vec<u8>, iv: &Vec<u8>, mu
         state = inv_mix_cols::mix(state);
         // print_state(&state);
         
-        if iv_applied == false {
-            dbg!("IV applied false");
-            state = iv.iter().zip(state.iter()).map(|(a,b)| a ^ b).collect::<Vec<u8>>();
-            iv_applied = true;
-        }
     }
     
     // x += 1;
@@ -112,96 +121,5 @@ fn decrypt(expanded_key: &Vec<u8>, rounds: u32, input: Vec<u8>, iv: &Vec<u8>, mu
     state = add_round_key::xor(state, ik_sch);        
     // print_state(&state);
 
-    (state, iv_applied)
-}
-
-
-#[cfg(test)]
-mod tests {
-
-use crate::decrypt::Decrypt;
-use super::*;
-use crate::aes_mode::AesMode;
-use crate::utils::hex_encoders;
-use crate::utils::printer::print_state;
-
-
-#[test]
-pub fn test_manual_decrypt() {
-    let input = "f6d6bba9f488c9e2bda504273828112f7d9fc76fe885250877ecbe77b019d10c6bae36c20d012c7821e01caf7e6b21862279c04d2ca230df2062fbc235a2afad929b25807e924f93db965c7ed258b1ed";
-    let input = hex_encoders::str_to_hex_u8_buf(input);
-    let key = "YELLOW SUBMARINE";
-    // let key = "YELLOW SUBMARINE".as_bytes().to_vec();
-    let key = hex_encoders::ascii_to_ascii_hex(&key);
-    let key = hex_encoders::str_to_hex_u8_buf(&key);
-    // let key: Vec<u8> = key.chars().map(|x| x.to_digit(16).unwrap() as u8).collect::<Vec<u8>>();
-    //instantiate our aes decryptor
-    let d: Decrypt = Decrypt::new(key.clone(), AesMode::CBC);
-    
-    let mut count = 0;
-    let mut buf: Vec<u8> = Vec::new();
-    let buf_len = 16;
-    println!();
-
-    while count < input.len() {
-        if count + buf_len >= input.len() {
-            // buf = enc_str[count..(enc_str.len() - count)].to_vec();
-            let mut slice = input[count..count + (input.len() - count)].to_vec();
-            let padding = buf_len - slice.len() ;
-            for _z in 0..padding {
-                slice.push(0x80);
-            }
-            buf.append(&mut run(&d, slice, &key));
-        } 
-        else {
-            let slice = input[count..(count + buf_len)].to_vec();
-            assert_eq!(slice.len(), buf_len);
-            buf.append(&mut run(&d, slice, &key));
-        }
-        count += buf_len;
-    }
-
-    for b in buf {
-        print!("{}", b as char);
-    }
-    println!();
-}
-
-#[test]
-pub fn test_decrypt_128() {
-    let key: Vec<u8> = vec![0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c];
-    // let input: Vec<u8> = vec![0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d, 0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34];
-    let input: Vec<u8> = vec![0x69, 0xc4, 0xe0, 0xd8, 0x6a, 0x7b, 0x04, 0x30, 0xd8, 0xcd, 0xb7, 0x80, 0x70, 0xb4, 0xc5, 0x5a];
-
-
-    let d = Decrypt::new(key.clone(), AesMode::CBC);
-    let output: Vec<u8> = run(&d, input, &key);
-
-    print_state(&output);
-}
-
-#[test]
-pub fn test_decrypt_plain_128() {
-    println!("build input");
-    let input = "69c4e0d86a7b0430d8cdb78070b4c55a";
-    let input: Vec<u8> = hex_encoders::str_to_hex_u8_buf(input);
-    assert_eq!(input.len(), 16);
-    for i in input.clone() {
-        print!("{:02x}", i);
-    }
-    println!("build cipher");
-    let key = "000102030405060708090a0b0c0d0e0f";
-    let key: Vec<u8> =hex_encoders::str_to_hex_u8_buf(key);
-    assert_eq!(key.len(), 16);
-
-    let result = "00112233445566778899aabbccddeeff";
-
-    println!("init decryptor");
-    let decryptor = Decrypt::new(key.clone(), AesMode::CBC);
-    println!("start decryptor");
-    let output: Vec<u8> = run(&decryptor, input, &key);
-    // let output: String = hex::encoders::hex_buf_to_str(output);
-    let output: String = output.iter().map(|x| format!("{:02x}", x)).collect();
-    // assert_eq!(&output, result);
-}
+    state
 }

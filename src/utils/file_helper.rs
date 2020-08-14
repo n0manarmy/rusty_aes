@@ -14,5 +14,6 @@ pub fn read_dev_random(size: usize) -> Vec<u8>{
             Err(why) => panic!(why),
         };
     }
+    assert_eq!(buf_vec.len(), size);
     buf_vec
 }

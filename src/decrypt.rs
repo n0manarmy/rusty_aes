@@ -30,11 +30,11 @@ impl Decrypt {
     }
 
     pub fn start_ecb(self, input: Vec<u8>) -> Vec<u8> {
-        modes::ecb_decrypt::decrypt(&self, input)
+        modes::ecb_decrypt::run(self, input)
     }
 
     pub fn start_cbc(self, input: Vec<u8>, iv: Vec<u8>) -> Vec<u8> {
-        modes::cbc_decrypt::run(&self, input, &iv)
+        modes::cbc_decrypt::run(&self, input, iv)
     }
 }
 
@@ -46,11 +46,29 @@ use crate::aes_mode::AesMode;
 use crate::utils::{hex_encoders, printer};
 
     #[test]
+    pub fn test_ecb_decrypt() {
+        // let input: Vec<u8> = "This is a test of the ability to encrypt and then decrypt the message".as_bytes().to_vec();
+        let input: Vec<u8> = hex_encoders::str_to_hex_u8_buf("f6d6bba9f488c9e2bda504273828112f7d9fc76fe885250877ecbe77b019d10c6bae36c20d012c7821e01caf7e6b21862279c04d2ca230df2062fbc235a2afad929b25807e924f93db965c7ed258b1ed");
+        let key: Vec<u8> = "YELLOW SUBMARINE".as_bytes().to_vec();
+        let decrypt: Decrypt = Decrypt::new(key, AesMode::ECB);
+
+        let results = decrypt.start_ecb(input);
+        // dbg!(results);
+        // dbg!(iv);
+        // printer::print_hex_aligned(&results);
+        for r in results {
+            print!("{}", r as char);
+        }
+        println!();
+    }
+
+
+    #[test]
     pub fn test_cbc_decrypt() {
         // let input: Vec<u8> = "This is a test of the ability to encrypt and then decrypt the message".as_bytes().to_vec();
-        let input: Vec<u8> = hex_encoders::str_to_hex_u8_buf("6974a61583f424f4dac8ff4dd922d4904bd7b38b1c1c27a70f093b0d05a7eda0b1efc4989a80736eff39e97419469123e26ff42c30ec3d7a3d0646e060ba0ceedc175eb774269162f314ffb8eb7b03a1");
+        let input: Vec<u8> = hex_encoders::str_to_hex_u8_buf("6abc4b29d635af2bc1c8c01945b6898bc0d7c866d423f76d805b059ceb7af6174d0cc4629f851982b3d2a6f840a27680906761951400439b33e43c9284914e840e8ec05291675031006e83c31d9feff9");
         let key: Vec<u8> = "YELLOW SUBMARINE".as_bytes().to_vec();
-        let iv: Vec<u8> = hex_encoders::str_to_hex_u8_buf("1c847943e4a09dd9c9fc5c673246ea35");
+        let iv: Vec<u8> = hex_encoders::str_to_hex_u8_buf("7e17a8aee419fea4b548b2e5067627ed");
         let decrypt: Decrypt = Decrypt::new(key, AesMode::CBC);
 
         let results = decrypt.start_cbc(input, iv);

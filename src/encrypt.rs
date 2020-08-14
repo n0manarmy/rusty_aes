@@ -31,13 +31,13 @@ impl Encrypt {
     }
 
     pub fn start_ecb(self, input: Vec<u8>) -> Vec<u8> {
-        modes::ecb_encrypt::encrypt(&self, input)
+        modes::ecb_encrypt::run(self, input)
     }
 
     pub fn start_cbc(self, input: Vec<u8>) -> (Vec<u8>, Vec<u8>) {
         let iv = iv_builder::get_iv(self.block_size);
         assert_eq!(iv.len(), self.block_size);
-        let results = modes::cbc_encrypt::run(&self, input, &iv);
+        let results = modes::cbc_encrypt::run(&self, input, iv.clone());
         (results, iv)
     }
 }
@@ -48,6 +48,18 @@ mod tests {
 use super::*;
 use crate::aes_mode::AesMode;
 use crate::utils::{hex_encoders, printer};
+
+    #[test]
+    pub fn test_ecb_encrypt() {
+        let input: Vec<u8> = "This is a test of the ability to encrypt and then decrypt the message".as_bytes().to_vec();
+        let key: Vec<u8> = "YELLOW SUBMARINE".as_bytes().to_vec();
+        let encryptor: Encrypt = Encrypt::new(key, AesMode::ECB);
+
+        let results = encryptor.start_ecb(input);
+        // dbg!(results);
+        // dbg!(iv);
+        printer::print_hex_aligned(&results);
+    }
 
     #[test]
     pub fn test_cbc_encrypt() {

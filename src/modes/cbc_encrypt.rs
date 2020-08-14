@@ -2,31 +2,49 @@
 use crate::utils::{tables, padder};
 use crate::encrypt::Encrypt;
 // use crate::test_vals::test_tables::cipher_128;
-// use crate::utils::printer::print_state;
+use crate::utils::printer::print_state;
 use crate::encrypt_funcs::{add_round_key, key_sch, mix_columns, shift_rows};
 
-pub fn run(e: &Encrypt, input: Vec<u8>, iv: &Vec<u8>) -> Vec<u8> {
+pub fn run(e: &Encrypt, input: Vec<u8>, init_iv: Vec<u8>) -> Vec<u8> {
     let mut count = 0;
     let buf_size = e.block_size;
     let mut buf: Vec<u8> = Vec::new();
+    let mut next_iv: Vec<u8> = Vec::new();
+    let mut init_iv_applied = false;
 
     //loop through input until len reached
     while count < input.len() {
         if count + buf_size >= input.len() {
             let mut slice = input[count..count + (input.len() - count)].to_vec();
-            // let padding = buf_size - slice.len();
-            slice = padder::pad(slice, e.block_size);
-            // for _z in 0..padding {
-            //     slice.push(0x80);
-            // }
-            let enc_results = &mut encrypt(&e.expanded_key, e.rounds, slice, &iv);
-            buf.append(enc_results);
-            let iv = enc_results;
+            slice = padder::pad(slice, buf_size);
+            
+            // xor IV with initial state
+            if !init_iv_applied {
+                slice = init_iv.iter().zip(slice.iter()).map(|(a,b)| a ^ b).collect::<Vec<u8>>();
+                init_iv_applied = true;
+            } else {
+                slice = next_iv.iter().zip(slice.iter()).map(|(a,b)| a ^ b).collect::<Vec<u8>>();
+            }
+            
+            let mut cipher_text = encrypt(&e.expanded_key, e.rounds, slice);
+            buf.append(&mut cipher_text);
+            next_iv = cipher_text;
         }
         else {
-            let slice = input[count..(count + buf_size)].to_vec();
+            let mut slice = input[count..(count + buf_size)].to_vec();
             assert_eq!(slice.len(), buf_size);
-            buf.append(&mut encrypt(&e.expanded_key, e.rounds, slice, &iv));
+
+            // xor IV with initial state
+            if !init_iv_applied {
+                slice = init_iv.iter().zip(slice.iter()).map(|(a,b)| a ^ b).collect::<Vec<u8>>();
+                init_iv_applied = true;
+            } else {
+                slice = next_iv.iter().zip(slice.iter()).map(|(a,b)| a ^ b).collect::<Vec<u8>>();
+            }
+
+            let mut cipher_text = encrypt(&e.expanded_key, e.rounds, slice);
+            buf.append(&mut cipher_text);
+            next_iv = cipher_text;
         }
         count += buf_size;
     }
@@ -34,75 +52,57 @@ pub fn run(e: &Encrypt, input: Vec<u8>, iv: &Vec<u8>) -> Vec<u8> {
     buf
 }
 
-fn encrypt(expanded_key: &Vec<u8>, rounds: u32, input: Vec<u8>, iv: &Vec<u8>) -> Vec<u8> {
+fn encrypt(expanded_key: &Vec<u8>, rounds: u32, input: Vec<u8>) -> Vec<u8> {
     let mut x = 0;
-    // print!("{} - input", x);
-    // print_state(&input);
-    // assert_eq!(&input, &cipher_128((x, "input")));
+    print!("{} - input", x);
+    print_state(&input);
 
     // let mut state = helper::transform_state(input);
-    let state = input;
-
-    // xor IV with initial state
-    let mut state = iv.iter().zip(state.iter()).map(|(a,b)| a ^ b).collect::<Vec<u8>>();
+    let mut state = input;
 
     // print!("{} - k_sch", x);
     let ik_sch: Vec<u8> = key_sch::get(0, expanded_key);
     // print_state(&ik_sch);
-    // assert_eq!(&ik_sch, &cipher_128((x, "k_sch")));
     state = add_round_key::xor(state, ik_sch);
 
     while x < (rounds - 1) {
         x += 1;
-        // print!("\n{} - start", x);
-        // print_state(&state);
-        // assert_eq!(&state, &cipher_128((x, "start")));
+        print!("\n{} - start", x);
+        print_state(&state);
 
         // print!("\n{} - s_box", x);
         state = state.iter().map(|x| tables::s_box(*x)).collect();
         // print_state(&state);
-        // assert_eq!(&state, &cipher_128((x, "s_box")));
 
         // print!("\n{} - s_row", x);
         state = shift_rows::shift(state);
         // print_state(&state);
-        // assert_eq!(&state, &cipher_128((x, "s_row")));
 
         // print!("\n{} - m_col", x);
         // state = mix_columns::table_mix(state);
         state = mix_columns::table_mix(state);
         // print_state(&state);
-        // assert_eq!(&state, &cipher_128((x, "m_col")));
 
-        // print!("\n{} - k_sch", x);
-        // let ik_sch: Vec<u8> = helper::transform_state(
-            // helper::get_this_round_exp_key(x as usize, &self.expanded_key));
-        
         let ik_sch: Vec<u8> = key_sch::get(x as usize, expanded_key);
         // print_state(&ik_sch);
-        // assert_eq!(&ik_sch, &cipher_128((x, "k_sch")));
                 
         // print!("\n{} - k_add", x);
         state = add_round_key::xor(state, ik_sch);
         // print_state(&state);
     }
 
-    // x += 1;
-    // print!("\n{} - s_box", self.rounds);
+    x += 1;
+    print!("\n{} - s_box", x);
     state = state.iter().map(|x| tables::s_box(*x)).collect();
-    // print_state(&state);
-    // assert_eq!(&state, &cipher_128((x, "s_box")));
+    print_state(&state);
 
-    // print!("\n{} - s_row", self.rounds);
+    print!("\n{} - s_row", x);
     state = shift_rows::shift(state);
-    // print_state(&state);
-    // assert_eq!(&state, &cipher_128((x, "s_row")));
-
-    // print!("k_sch");
-    // let ik_sch: Vec<u8> = helper::transform_state(helper::get_this_round_exp_key(self.rounds as usize, &self.expanded_key));
+    print_state(&state);
+    
+    print!("\n{} - ik_sch", x);
     let ik_sch: Vec<u8> = key_sch::get(rounds as usize, expanded_key);
-    // print_state(&ik_sch);
-    // assert_eq!(&ik_sch, &cipher_128((x, "k_sch")));
+    print_state(&ik_sch);
 
     state = add_round_key::xor(state, ik_sch);
 
@@ -118,38 +118,6 @@ use crate::aes_mode::AesMode;
 use crate::utils::{iv_builder, hex_encoders, printer::print_state};
 
 #[test]
-pub fn test_manual_encrypt() {
-    let input: Vec<u8> = "This is a test of the ability to encrypt and then decrypt the message".as_bytes().to_vec();
-    let key: Vec<u8> = "YELLOW SUBMARINE".as_bytes().to_vec();
-    let encryptor: Encrypt = Encrypt::new(key, AesMode::CBC);
-    let buf_size = 16;
-    let mut count = 0;
-    let mut buf: Vec<u8> = Vec::new();
-    let iv = iv_builder::get_iv(encryptor.block_size);
-
-    //loop through input until len reached
-    while count < input.len() {
-        if count + buf_size >= input.len() {
-            let mut slice = input[count..count + (input.len() - count)].to_vec();
-            let padding = buf_size - slice.len() ;
-            slice = padder::pad(slice, padding);
-            let enc_results = &mut run(&encryptor, slice, &iv);
-            buf.append(enc_results);
-        }
-        else {
-            let slice = input[count..(count + buf_size)].to_vec();
-            assert_eq!(slice.len(), buf_size);
-            buf.append(&mut run(&encryptor, slice, &iv));
-        }
-        count += buf_size;
-    }
-
-    for b in buf {
-        print!("{:02x}", b);
-    }
-    println!();
-}
-#[test]
 pub fn test_encrypt_128() {
     let input: Vec<u8> = vec![0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d, 0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34];
     let cipher_key: Vec<u8> = vec![0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c];
@@ -157,7 +125,7 @@ pub fn test_encrypt_128() {
     let iv = iv_builder::get_iv(cipher_key.len());
 
     let encryptor = Encrypt::new(cipher_key, AesMode::CBC);
-    let output: Vec<u8> = run(&encryptor, input, &iv);
+    let output: Vec<u8> = run(&encryptor, input, iv);
 
     print_state(&output);
 
@@ -178,7 +146,7 @@ pub fn test_encrypt_plain_128() {
 
     let encryptor = Encrypt::new(cipher, AesMode::CBC);
     // let output: Vec<u8> = helper::transform_state(encryptor.encrypt(input));
-    let output: Vec<u8> = run(&encryptor, input, &iv);
+    let output: Vec<u8> = run(&encryptor, input, iv);
     print_state(&output);
     let output: String = output.iter().map(|x| format!("{:02x}", x)).collect();
     println!("output: {}", &output);
