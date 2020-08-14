@@ -36,7 +36,6 @@ impl Encrypt {
 
     pub fn start_cbc(self, input: Vec<u8>) -> (Vec<u8>, Vec<u8>) {
         let iv = iv_builder::get_iv(self.block_size);
-        assert_eq!(iv.len(), self.block_size);
         let results = modes::cbc_encrypt::run(&self, input, iv.clone());
         (results, iv)
     }

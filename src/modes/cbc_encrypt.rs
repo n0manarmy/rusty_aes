@@ -15,36 +15,37 @@ pub fn run(e: &Encrypt, input: Vec<u8>, init_iv: Vec<u8>) -> Vec<u8> {
     //loop through input until len reached
     while count < input.len() {
         if count + buf_size >= input.len() {
-            let mut slice = input[count..count + (input.len() - count)].to_vec();
-            slice = padder::pad(slice, buf_size);
+            let mut cipher_text = input[count..count + (input.len() - count)].to_vec();
+            cipher_text = padder::pad(cipher_text, buf_size);
             
             // xor IV with initial state
-            if !init_iv_applied {
-                slice = init_iv.iter().zip(slice.iter()).map(|(a,b)| a ^ b).collect::<Vec<u8>>();
+            if init_iv_applied == false {
+                cipher_text = init_iv.iter().zip(cipher_text.iter()).map(|(a,b)| a ^ b).collect::<Vec<u8>>();
                 init_iv_applied = true;
             } else {
-                slice = next_iv.iter().zip(slice.iter()).map(|(a,b)| a ^ b).collect::<Vec<u8>>();
+                cipher_text = next_iv.iter().zip(cipher_text.iter()).map(|(a,b)| a ^ b).collect::<Vec<u8>>();
             }
             
-            let mut cipher_text = encrypt(&e.expanded_key, e.rounds, slice);
+            let mut cipher_text = encrypt(&e.expanded_key, e.rounds, cipher_text);
+            next_iv = cipher_text.clone();
+
             buf.append(&mut cipher_text);
-            next_iv = cipher_text;
         }
         else {
-            let mut slice = input[count..(count + buf_size)].to_vec();
-            assert_eq!(slice.len(), buf_size);
+            let mut cipher_text = input[count..(count + buf_size)].to_vec();
 
             // xor IV with initial state
-            if !init_iv_applied {
-                slice = init_iv.iter().zip(slice.iter()).map(|(a,b)| a ^ b).collect::<Vec<u8>>();
+            if init_iv_applied == false {
+                cipher_text = init_iv.iter().zip(cipher_text.iter()).map(|(a,b)| a ^ b).collect::<Vec<u8>>();
                 init_iv_applied = true;
             } else {
-                slice = next_iv.iter().zip(slice.iter()).map(|(a,b)| a ^ b).collect::<Vec<u8>>();
+                cipher_text = next_iv.iter().zip(cipher_text.iter()).map(|(a,b)| a ^ b).collect::<Vec<u8>>();
             }
 
-            let mut cipher_text = encrypt(&e.expanded_key, e.rounds, slice);
+            let mut cipher_text = encrypt(&e.expanded_key, e.rounds, cipher_text);
+            next_iv = cipher_text.clone();
+
             buf.append(&mut cipher_text);
-            next_iv = cipher_text;
         }
         count += buf_size;
     }
@@ -54,8 +55,8 @@ pub fn run(e: &Encrypt, input: Vec<u8>, init_iv: Vec<u8>) -> Vec<u8> {
 
 fn encrypt(expanded_key: &Vec<u8>, rounds: u32, input: Vec<u8>) -> Vec<u8> {
     let mut x = 0;
-    print!("{} - input", x);
-    print_state(&input);
+    // print!("{} - input", x);
+    // print_state(&input);
 
     // let mut state = helper::transform_state(input);
     let mut state = input;
@@ -67,8 +68,8 @@ fn encrypt(expanded_key: &Vec<u8>, rounds: u32, input: Vec<u8>) -> Vec<u8> {
 
     while x < (rounds - 1) {
         x += 1;
-        print!("\n{} - start", x);
-        print_state(&state);
+        // print!("\n{} - start", x);
+        // print_state(&state);
 
         // print!("\n{} - s_box", x);
         state = state.iter().map(|x| tables::s_box(*x)).collect();
@@ -92,17 +93,17 @@ fn encrypt(expanded_key: &Vec<u8>, rounds: u32, input: Vec<u8>) -> Vec<u8> {
     }
 
     x += 1;
-    print!("\n{} - s_box", x);
+    // print!("\n{} - s_box", x);
     state = state.iter().map(|x| tables::s_box(*x)).collect();
-    print_state(&state);
+    // print_state(&state);
 
-    print!("\n{} - s_row", x);
+    // print!("\n{} - s_row", x);
     state = shift_rows::shift(state);
-    print_state(&state);
+    // print_state(&state);
     
-    print!("\n{} - ik_sch", x);
+    // print!("\n{} - ik_sch", x);
     let ik_sch: Vec<u8> = key_sch::get(rounds as usize, expanded_key);
-    print_state(&ik_sch);
+    // print_state(&ik_sch);
 
     state = add_round_key::xor(state, ik_sch);
 

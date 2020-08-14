@@ -66,9 +66,9 @@ use crate::utils::{hex_encoders, printer};
     #[test]
     pub fn test_cbc_decrypt() {
         // let input: Vec<u8> = "This is a test of the ability to encrypt and then decrypt the message".as_bytes().to_vec();
-        let input: Vec<u8> = hex_encoders::str_to_hex_u8_buf("6abc4b29d635af2bc1c8c01945b6898bc0d7c866d423f76d805b059ceb7af6174d0cc4629f851982b3d2a6f840a27680906761951400439b33e43c9284914e840e8ec05291675031006e83c31d9feff9");
+        let input: Vec<u8> = hex_encoders::str_to_hex_u8_buf("81dddc8f45635f3c8113bda618af39a348b93b1cc3ea75e8f066f91ba70aaf54f37c3835ccf686665934a09f17219e6b6e5e4cfe277b881275987c46e1f822c820f85a9630fa9bfc0cc5e782c199cfb1");
         let key: Vec<u8> = "YELLOW SUBMARINE".as_bytes().to_vec();
-        let iv: Vec<u8> = hex_encoders::str_to_hex_u8_buf("7e17a8aee419fea4b548b2e5067627ed");
+        let iv: Vec<u8> = hex_encoders::str_to_hex_u8_buf("3bd9688be939895e463491759d30a92d");
         let decrypt: Decrypt = Decrypt::new(key, AesMode::CBC);
 
         let results = decrypt.start_cbc(input, iv);
