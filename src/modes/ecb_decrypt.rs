@@ -1,9 +1,9 @@
-use crate::key_expander::expander;
+use crate::decrypt::Decrypt;
 use crate::utils::tables;
 use crate::decrypt_funcs::{inv_mix_cols, inv_shift_rows};
 use crate::encrypt_funcs::{key_sch, add_round_key};
 
-pub fn decrypt(&self, input: Vec<u8>) -> Vec<u8> {
+pub fn decrypt(d: &Decrypt, input: Vec<u8>) -> Vec<u8> {
     let mut x = 0;
     // print!("{} -- iinput",x);
     // print_state(&input);
@@ -16,7 +16,7 @@ pub fn decrypt(&self, input: Vec<u8>) -> Vec<u8> {
     // print!("{} - ik_sch", x);
     // let ik_sch: Vec<u8> = helper::transform_state(
     //     helper::get_this_round_exp_key(self.rounds as usize, &self.expanded_key));
-    let ik_sch: Vec<u8> = key_sch::get(self.rounds as usize, &self.expanded_key);
+    let ik_sch: Vec<u8> = key_sch::get(d.rounds as usize, &d.expanded_key);
     // print_state(&ik_sch);
     // assert_eq!(&ik_sch, &test_tables::inv_cipher_128((x,"ik_sch")));
     // let ik_sch = helper::transform_state(ik_sch);
@@ -25,7 +25,7 @@ pub fn decrypt(&self, input: Vec<u8>) -> Vec<u8> {
     let mut state = add_round_key::xor(input, ik_sch);
     // print_state(&state);
 
-    while x < (self.rounds - 1) {
+    while x < (d.rounds - 1) {
         x += 1;
         // print!("\n{} - istart", x);
         // print_state(&state);
@@ -42,7 +42,7 @@ pub fn decrypt(&self, input: Vec<u8>) -> Vec<u8> {
         // assert_eq!(&state, &test_tables::inv_cipher_128((x,"is_box")));
 
         // print!("\n{} - ik_sch", x);
-        let ik_sch: Vec<u8> = key_sch::get((self.rounds - x) as usize, &self.expanded_key);
+        let ik_sch: Vec<u8> = key_sch::get((d.rounds - x) as usize, &d.expanded_key);
         // print_state(&ik_sch);
         // assert_eq!(&ik_sch, &test_tables::inv_cipher_128((x,"ik_sch")));
 
@@ -67,7 +67,7 @@ pub fn decrypt(&self, input: Vec<u8>) -> Vec<u8> {
 
     // print!("ik_sch");
     // let ik_sch: Vec<u8> = helper::transform_state(
-    let ik_sch: Vec<u8> = key_sch::get(0, &self.expanded_key);
+    let ik_sch: Vec<u8> = key_sch::get(0, &d.expanded_key);
     // print_state(&ik_sch);
     
     // print!("\n{} - ik_add", 0);
@@ -81,6 +81,8 @@ pub fn decrypt(&self, input: Vec<u8>) -> Vec<u8> {
 #[cfg(test)]
 mod tests {
 
+use crate::decrypt::Decrypt;
+use crate::aes_mode::AesMode;
 use super::*;
 use crate::utils::hex_encoders;
 use crate::utils::printer::print_state;
@@ -96,7 +98,7 @@ pub fn test_manual_decrypt() {
     let key = hex_encoders::str_to_hex_u8_buf(&key);
     // let key: Vec<u8> = key.chars().map(|x| x.to_digit(16).unwrap() as u8).collect::<Vec<u8>>();
     //instantiate our aes decryptor
-    let decrypt: Decrypt = Decrypt::new(key);
+    let d: Decrypt = Decrypt::new(key, AesMode::ECB);
     
     let mut count = 0;
     let mut buf: Vec<u8> = Vec::new();
@@ -111,12 +113,12 @@ pub fn test_manual_decrypt() {
             for _z in 0..padding {
                 slice.push(0x80);
             }
-            buf.append(&mut decrypt.decrypt(slice));
+            buf.append(&mut decrypt(&d, slice));
         } 
         else {
             let slice = input[count..(count + buf_len)].to_vec();
             assert_eq!(slice.len(), buf_len);
-            buf.append(&mut decrypt.decrypt(slice));
+            buf.append(&mut decrypt(&d, slice));
         }
         count += buf_len;
     }
@@ -134,8 +136,8 @@ pub fn test_decrypt_128() {
     let input: Vec<u8> = vec![0x69, 0xc4, 0xe0, 0xd8, 0x6a, 0x7b, 0x04, 0x30, 0xd8, 0xcd, 0xb7, 0x80, 0x70, 0xb4, 0xc5, 0x5a];
 
 
-    let decryptor = Decrypt::new(cipher_key);
-    let output: Vec<u8> = decryptor.decrypt(input);
+    let d = Decrypt::new(cipher_key, AesMode::ECB);
+    let output: Vec<u8> = decrypt(&d, input);
 
     print_state(&output);
 }
@@ -157,9 +159,9 @@ pub fn test_decrypt_plain_128() {
     let result = "00112233445566778899aabbccddeeff";
 
     println!("init decryptor");
-    let decryptor = Decrypt::new(key);
+    let decryptor = Decrypt::new(key, AesMode::ECB);
     println!("start decryptor");
-    let output: Vec<u8> = decryptor.decrypt(input);
+    let output: Vec<u8> = decrypt(&decryptor, input);
     // let output: String = hex::encoders::hex_buf_to_str(output);
     let output: String = output.iter().map(|x| format!("{:02x}", x)).collect();
     assert_eq!(&output, result);

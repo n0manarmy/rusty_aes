@@ -1,6 +1,7 @@
 use crate::key_expander::expander;
 use crate::modes;
 use crate::aes_mode::AesMode;
+use crate::utils::iv_builder;
 
 pub struct Encrypt {
     pub expanded_key: Vec<u8>,
@@ -29,10 +30,37 @@ impl Encrypt {
         }
     }
 
-    pub fn start_mode(self, input: Vec<u8>) -> Vec<u8> {
-        match self.mode {
-            AesMode::CBC => modes::cbc_encrypt::encrypt(&self, input),
-            AesMode::ECB => modes::ecb_encrypt::encrypt(&self, input),
-        }
+    pub fn start_ecb(self, input: Vec<u8>) -> Vec<u8> {
+        modes::ecb_encrypt::encrypt(&self, input)
+    }
+
+    pub fn start_cbc(self, input: Vec<u8>) -> (Vec<u8>, Vec<u8>) {
+        let iv = iv_builder::get_iv(self.block_size);
+        assert_eq!(iv.len(), self.block_size);
+        let results = modes::cbc_encrypt::run(&self, input, &iv);
+        (results, iv)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+use super::*;
+use crate::aes_mode::AesMode;
+use crate::utils::{hex_encoders, printer};
+
+    #[test]
+    pub fn test_cbc_encrypt() {
+        let input: Vec<u8> = "This is a test of the ability to encrypt and then decrypt the message".as_bytes().to_vec();
+        let key: Vec<u8> = "YELLOW SUBMARINE".as_bytes().to_vec();
+        let encryptor: Encrypt = Encrypt::new(key, AesMode::CBC);
+
+        let (results, iv) = encryptor.start_cbc(input);
+        // dbg!(results);
+        // dbg!(iv);
+        printer::print_hex_aligned(&results);
+        printer::print_hex_aligned(&iv);
+
+
     }
 }
