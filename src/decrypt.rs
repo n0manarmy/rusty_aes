@@ -45,6 +45,21 @@ use super::*;
 use crate::aes_mode::AesMode;
 use crate::utils::{hex_encoders, printer};
 
+
+    #[test]
+    pub fn ietf_cbc_128_decrypt_test() {
+        let key: Vec<u8> = vec![0x06, 0xa9, 0x21, 0x40, 0x36, 0xb8, 0xa1, 0x5b, 0x51, 0x2e, 0x03, 0xd5, 0x34, 0x12, 0x00, 0x06];
+        let iv: Vec<u8> = vec![0x3d, 0xaf, 0xba, 0x42, 0x9d, 0x9e, 0xb4, 0x30, 0xb4, 0x22, 0xda, 0x80, 0x2c, 0x9f, 0xac, 0x41];
+        let input = "Single block msg".as_bytes().to_vec();
+        let cipher_answer: Vec<u8> = vec![0xe3, 0x53, 0x77, 0x9c, 0x10, 0x79, 0xae, 0xb8, 0x27, 0x08, 0x94, 0x2d, 0xbe, 0x77, 0x18, 0x1a];
+
+        let decryptor: Decrypt = Decrypt::new(key, AesMode::CBC);
+        let results = decryptor.start_cbc(cipher_answer, iv);
+        assert_eq!(results, input);
+        printer::print_hex_aligned(&results);
+    }
+
+
     #[test]
     pub fn test_ecb_decrypt() {
         // let input: Vec<u8> = "This is a test of the ability to encrypt and then decrypt the message".as_bytes().to_vec();

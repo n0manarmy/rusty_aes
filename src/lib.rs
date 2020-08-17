@@ -1,7 +1,7 @@
 pub mod decrypt;
 pub mod encrypt;
 pub mod utils;
-mod aes_mode;
+pub mod aes_mode;
 mod modes;
 mod key_expander;
 mod test_vals;

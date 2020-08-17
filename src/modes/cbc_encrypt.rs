@@ -1,6 +1,6 @@
 // use crate::utils::helper;
 use crate::utils::{tables, padder};
-use crate::encrypt::Encrypt;
+use crate::encrypt::{Encrypt, InitializationValue};
 // use crate::test_vals::test_tables::cipher_128;
 use crate::utils::printer::print_state;
 use crate::encrypt_funcs::{add_round_key, key_sch, mix_columns, shift_rows};
@@ -125,7 +125,7 @@ pub fn test_encrypt_128() {
     let result: Vec<u8> = vec![0x39, 0x02, 0xdc, 0x19, 0x25, 0xdc, 0x11, 0x6a, 0x84, 0x09, 0x85, 0x0b, 0x1d, 0xfb, 0x97, 0x32];
     let iv = iv_builder::get_iv(cipher_key.len());
 
-    let encryptor = Encrypt::new(cipher_key, AesMode::CBC);
+    let encryptor = Encrypt::new(cipher_key, AesMode::CBC, InitializationValue::None);
     let output: Vec<u8> = run(&encryptor, input, iv);
 
     print_state(&output);
@@ -145,7 +145,7 @@ pub fn test_encrypt_plain_128() {
 
     let result = "69c4e0d86a7b0430d8cdb78070b4c55a";
 
-    let encryptor = Encrypt::new(cipher, AesMode::CBC);
+    let encryptor = Encrypt::new(cipher, AesMode::CBC, InitializationValue::None);
     // let output: Vec<u8> = helper::transform_state(encryptor.encrypt(input));
     let output: Vec<u8> = run(&encryptor, input, iv);
     print_state(&output);
