@@ -3,12 +3,11 @@ use crate::utils::{tables, padder};
 use crate::decrypt_funcs::{inv_mix_cols, inv_shift_rows};
 use crate::encrypt_funcs::{key_sch, add_round_key};
 
-pub fn run(e: &Decrypt, input: Vec<u8>, init_iv: Vec<u8>) -> Vec<u8> {
+pub fn run(e: &Decrypt, input: Vec<u8>) -> Vec<u8> {
     let mut count = 0;
     let buf_size = e.block_size;
     let mut buf: Vec<u8> = Vec::new();
     let mut init_iv_applied = false;
-    let mut next_iv: Vec<u8>;
 
     //loop through input until len reached
     while count < input.len() {
@@ -16,12 +15,11 @@ pub fn run(e: &Decrypt, input: Vec<u8>, init_iv: Vec<u8>) -> Vec<u8> {
         if count + buf_size >= input.len() {
             let mut cipher_text = input[count..count + (input.len() - count)].to_vec();
             cipher_text = padder::pad(cipher_text, buf_size);
-            next_iv = cipher_text.clone();
 
             cipher_text = decrypt(&e.expanded_key, e.rounds, cipher_text);
             
             if init_iv_applied == false {
-                cipher_text = init_iv.iter().zip(cipher_text.iter()).map(|(a,b)| a ^ b).collect::<Vec<u8>>();
+                cipher_text = e.iv.iter().zip(cipher_text.iter()).map(|(a,b)| a ^ b).collect::<Vec<u8>>();
                 init_iv_applied = true;
             } else {
                 let previous_cipher_text = input[(count - buf_size)..count].to_vec();
@@ -33,12 +31,11 @@ pub fn run(e: &Decrypt, input: Vec<u8>, init_iv: Vec<u8>) -> Vec<u8> {
             buf.append(&mut cipher_text);
         } else {
             let mut cipher_text = input[count..(count + buf_size)].to_vec();            
-            next_iv = cipher_text.clone();
 
             cipher_text = decrypt(&e.expanded_key, e.rounds, cipher_text);
             
             if init_iv_applied == false {
-                cipher_text = init_iv.iter().zip(cipher_text.iter()).map(|(a,b)| a ^ b).collect::<Vec<u8>>();
+                cipher_text = e.iv.iter().zip(cipher_text.iter()).map(|(a,b)| a ^ b).collect::<Vec<u8>>();
                 init_iv_applied = true;
             } else {
                 let previous_cipher_text = input[(count - buf_size)..count].to_vec();
