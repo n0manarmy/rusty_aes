@@ -1,31 +1,28 @@
-// use crate::utils::helper;
 use crate::utils::tables;
 use crate::encrypt::Encrypt;
-// use crate::test_vals::test_tables::cipher_128;
-// use crate::utils::printer::print_state;
+use crate::utils::padder;
 use crate::encrypt_funcs::{add_round_key, key_sch, mix_columns, shift_rows};
 
-pub fn run(e: Encrypt, input: Vec<u8>) -> Vec<u8> {
+pub fn run(e: Encrypt, input: &Vec<u8>) -> Vec<u8> {
     let mut buf: Vec<u8> = Vec::new();
     let mut count = 0;
     let buf_size = e.block_size;
 
     while count < input.len() {
-        if count + buf_size >= input.len() {
-            let mut slice = input[count..count + (input.len() - count)].to_vec();
-            let padding = buf_size - slice.len() ;
-            for _z in 0..padding {
-                slice.push(0x80);
-            }
-            let mut cipher_text = encrypt(&e.expanded_key, e.rounds, slice);
-            buf.append(&mut cipher_text);
+        let mut cipher_text: Vec<u8>;
+        let end_next_chunk = count + buf_size;
+
+        if end_next_chunk >= input.len() {
+            cipher_text = input[count..end_next_chunk].to_vec();
+            cipher_text = padder::pad(cipher_text, buf_size);
+            cipher_text = encrypt(&e.expanded_key, e.rounds, cipher_text);
         }
         else {
-            let slice = input[count..(count + buf_size)].to_vec();
-            assert_eq!(slice.len(), buf_size);
-            let mut cipher_text = encrypt(&e.expanded_key, e.rounds, slice); 
-            buf.append(&mut cipher_text);
+            cipher_text = input[count..end_next_chunk].to_vec();
+            cipher_text = encrypt(&e.expanded_key, e.rounds, cipher_text); 
         }
+
+        buf.append(&mut cipher_text);
         count += buf_size;
     }
 
@@ -104,75 +101,41 @@ fn encrypt(expanded_key: &Vec<u8>, rounds: u32, input: Vec<u8>) -> Vec<u8> {
     state
 }
 
-// #[cfg(test)]
-// mod tests {
+#[cfg(test)]
+mod tests {
 
-// use super::*;
-// use crate::aes_mode::AesMode;
-// use crate::utils::{hex_encoders, printer::print_state};
+    use super::*;
+    use crate::utils::{hex_encoders, printer};
 
-// #[test]
-// pub fn test_manual_encrypt() {
-//     let input: Vec<u8> = "This is a test of the ability to encrypt and then decrypt the message".as_bytes().to_vec();
-//     let key: Vec<u8> = "YELLOW SUBMARINE".as_bytes().to_vec();
-//     let encryptor: Encrypt = Encrypt::new(key, AesMode::ECB);
-//     let buf_size = 16;
-//     let mut count = 0;
-//     let mut buf: Vec<u8> = Vec::new();
+    #[test]
+    pub fn test_encrypt_128_ecb() {
+        let input: Vec<u8> = vec![0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d, 0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34];
+        let key: Vec<u8> = vec![0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c];
+        let result: Vec<u8> = vec![0x39, 0x25, 0x84, 0x1d, 0x02, 0xdc, 0x09, 0xfb, 0xdc, 0x11, 0x85, 0x97, 0x19, 0x6a, 0x0b, 0x32]; 
 
-//     while count < input.len() {
-//         if count + buf_size >= input.len() {
-//             let mut slice = input[count..count + (input.len() - count)].to_vec();
-//             let padding = buf_size - slice.len() ;
-//             for _z in 0..padding {
-//                 slice.push(0x80);
-//             }
-//             buf.append(&mut encrypt(&encryptor, slice));
-//         }
-//         else {
-//             let slice = input[count..(count + buf_size)].to_vec();
-//             assert_eq!(slice.len(), buf_size);
-//             buf.append(&mut encrypt(&encryptor, slice));
-//         }
-//         count += buf_size;
-//     }
+        let e = Encrypt::ecb(key);
+        let output: Vec<u8> = e.encrypt(&input);
 
-//     for b in buf {
-//         print!("{:02x}", b);
-//     }
-//     println!();
-// }
-// #[test]
-// pub fn test_encrypt_128() {
-//     let input: Vec<u8> = vec![0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d, 0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34];
-//     let cipher_key: Vec<u8> = vec![0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c];
-//     let result: Vec<u8> = vec![0x39, 0x02, 0xdc, 0x19, 0x25, 0xdc, 0x11, 0x6a, 0x84, 0x09, 0x85, 0x0b, 0x1d, 0xfb, 0x97, 0x32];
+        assert_eq!(output, result);
+    }
 
-//     let encryptor = Encrypt::new(cipher_key, AesMode::ECB);
-//     let output: Vec<u8> = encrypt(&encryptor, input);
+    #[test]
+    pub fn test_encrypt_plain_128_ecb() {
+        let input = "00112233445566778899aabbccddeeff";
+        let input: Vec<u8> = hex_encoders::str_to_hex_u8_buf(input);
+        assert_eq!(input.len(), 16);
+        let cipher = "000102030405060708090a0b0c0d0e0f";
+        let cipher: Vec<u8> = hex_encoders::str_to_hex_u8_buf(cipher);
 
-//     print_state(&output);
+        let result = "69c4e0d86a7b0430d8cdb78070b4c55a";
 
-//     assert_eq!(output, result);
-// }
+        let e = Encrypt::ecb(cipher);
+        // let output: Vec<u8> = helper::transform_state(encryptor.encrypt(input));
+        let output: Vec<u8> = e.encrypt(&input);
+        printer::print_state(&output);
+        let output: String = output.iter().map(|x| format!("{:02x}", x)).collect();
+        println!("output: {}", &output);
+        assert_eq!(&output, result);
+    }
 
-// #[test]
-// pub fn test_encrypt_plain_128() {
-//     let input = "00112233445566778899aabbccddeeff";
-//     let input: Vec<u8> = hex_encoders::str_to_hex_u8_buf(input);
-//     assert_eq!(input.len(), 16);
-//     let cipher = "000102030405060708090a0b0c0d0e0f";
-//     let cipher: Vec<u8> = hex_encoders::str_to_hex_u8_buf(cipher);
-
-//     let result = "69c4e0d86a7b0430d8cdb78070b4c55a";
-
-//     let encryptor = Encrypt::new(cipher, AesMode::ECB);
-//     // let output: Vec<u8> = helper::transform_state(encryptor.encrypt(input));
-//     let output: Vec<u8> = encrypt(&encryptor, input);
-//     print_state(&output);
-//     let output: String = output.iter().map(|x| format!("{:02x}", x)).collect();
-//     println!("output: {}", &output);
-//     assert_eq!(&output, result);
-// }
-
-// }
+}

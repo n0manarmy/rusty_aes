@@ -9,22 +9,14 @@ pub fn run(e: Decrypt, input: Vec<u8>) -> Vec<u8> {
     let buf_size = e.block_size;
 
     while count < input.len() {
-        if count + buf_size >= input.len() {
-            let mut cipher_text = input[count..count + (input.len() - count)].to_vec();
-            cipher_text = padder::pad(cipher_text, buf_size);
-            let mut cipher_text = decrypt(&e.expanded_key, e.rounds, cipher_text);
-            buf.append(&mut cipher_text);
-        }
-        else {
-            let slice = input[count..(count + buf_size)].to_vec();
-            assert_eq!(slice.len(), buf_size);
-            let mut cipher_text = decrypt(&e.expanded_key, e.rounds, slice); 
-            buf.append(&mut cipher_text);
-        }
+        let slice = input[count..(count + buf_size)].to_vec();
+        assert_eq!(slice.len(), buf_size);
+        let mut cipher_text = decrypt(&e.expanded_key, e.rounds, slice); 
+        buf.append(&mut cipher_text);
         count += buf_size;
     }
 
-    buf
+    padder::clear_padding(buf)
 }
 
 fn decrypt(expanded_key: &Vec<u8>, rounds: u32, input: Vec<u8>) -> Vec<u8> {
@@ -102,92 +94,28 @@ fn decrypt(expanded_key: &Vec<u8>, rounds: u32, input: Vec<u8>) -> Vec<u8> {
 }
 
 
-// #[cfg(test)]
-// mod tests {
+#[cfg(test)]
+mod tests {
 
-// use crate::decrypt::Decrypt;
-// use crate::aes_mode::AesMode;
-// use super::*;
-// use crate::utils::hex_encoders;
-// use crate::utils::printer::print_state;
+use crate::decrypt::Decrypt;
+use crate::encrypt::Encrypt;
 
+    #[test]
+    pub fn test_decrypt_small() {
+        let key: Vec<u8> = "THISTHEMYENCRKEY".as_bytes().to_vec();
+        let text = String::from("testtesttesttesttest");
+        let mut input: Vec<u8> = text.as_bytes().to_vec();
+        input.push(0x80);
+        input.push(0x80);
+        let text: String = input.iter().map(|x| *x as char).collect();
+        
+        let e: Encrypt = Encrypt::ecb(key.clone());
+        let cipher_text: Vec<u8> = e.encrypt(&input);
 
-// #[test]
-// pub fn test_manual_decrypt() {
-//     let input = "f6d6bba9f488c9e2bda504273828112f7d9fc76fe885250877ecbe77b019d10c6bae36c20d012c7821e01caf7e6b21862279c04d2ca230df2062fbc235a2afad929b25807e924f93db965c7ed258b1ed";
-//     let input = hex_encoders::str_to_hex_u8_buf(input);
-//     let key = "YELLOW SUBMARINE";
-//     // let key = "YELLOW SUBMARINE".as_bytes().to_vec();
-//     let key = hex_encoders::ascii_to_ascii_hex(&key);
-//     let key = hex_encoders::str_to_hex_u8_buf(&key);
-//     // let key: Vec<u8> = key.chars().map(|x| x.to_digit(16).unwrap() as u8).collect::<Vec<u8>>();
-//     //instantiate our aes decryptor
-//     let d: Decrypt = Decrypt::new(key, AesMode::ECB);
-    
-//     let mut count = 0;
-//     let mut buf: Vec<u8> = Vec::new();
-//     let buf_len = 16;
-//     println!();
+        let d: Decrypt = Decrypt::ecb(key);
+        let results = d.decrypt(cipher_text);
+        let results: String = results.iter().map(|x| *x as char).collect();
 
-//     while count < input.len() {
-//         if count + buf_len >= input.len() {
-//             // buf = enc_str[count..(enc_str.len() - count)].to_vec();
-//             let mut slice = input[count..count + (input.len() - count)].to_vec();
-//             let padding = buf_len - slice.len() ;
-//             for _z in 0..padding {
-//                 slice.push(0x80);
-//             }
-//             buf.append(&mut decrypt(&d, slice));
-//         } 
-//         else {
-//             let slice = input[count..(count + buf_len)].to_vec();
-//             assert_eq!(slice.len(), buf_len);
-//             buf.append(&mut decrypt(&d, slice));
-//         }
-//         count += buf_len;
-//     }
-
-//     for b in buf {
-//         print!("{}", b as char);
-//     }
-//     println!();
-// }
-
-// #[test]
-// pub fn test_decrypt_128() {
-//     let cipher_key: Vec<u8> = vec![0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c];
-//     // let input: Vec<u8> = vec![0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d, 0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34];
-//     let input: Vec<u8> = vec![0x69, 0xc4, 0xe0, 0xd8, 0x6a, 0x7b, 0x04, 0x30, 0xd8, 0xcd, 0xb7, 0x80, 0x70, 0xb4, 0xc5, 0x5a];
-
-
-//     let d = Decrypt::new(cipher_key, AesMode::ECB);
-//     let output: Vec<u8> = decrypt(&d, input);
-
-//     print_state(&output);
-// }
-
-// #[test]
-// pub fn test_decrypt_plain_128() {
-//     println!("build input");
-//     let input = "69c4e0d86a7b0430d8cdb78070b4c55a";
-//     let input: Vec<u8> = hex_encoders::str_to_hex_u8_buf(input);
-//     assert_eq!(input.len(), 16);
-//     for i in input.clone() {
-//         print!("{:02x}", i);
-//     }
-//     println!("build cipher");
-//     let key = "000102030405060708090a0b0c0d0e0f";
-//     let key: Vec<u8> =hex_encoders::str_to_hex_u8_buf(key);
-//     assert_eq!(key.len(), 16);
-
-//     let result = "00112233445566778899aabbccddeeff";
-
-//     println!("init decryptor");
-//     let decryptor = Decrypt::new(key, AesMode::ECB);
-//     println!("start decryptor");
-//     let output: Vec<u8> = decrypt(&decryptor, input);
-//     // let output: String = hex::encoders::hex_buf_to_str(output);
-//     let output: String = output.iter().map(|x| format!("{:02x}", x)).collect();
-//     assert_eq!(&output, result);
-// }
-// }
+        assert_eq!(text, results);
+    }
+}

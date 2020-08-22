@@ -1,11 +1,11 @@
 // use crate::utils::helper;
 use crate::utils::{tables, padder};
-use crate::encrypt::{Encrypt, InitializationValue};
+use crate::encrypt::Encrypt;
 // use crate::test_vals::test_tables::cipher_128;
 use crate::utils::printer::print_state;
 use crate::encrypt_funcs::{add_round_key, key_sch, mix_columns, shift_rows};
 
-pub fn run(e: &Encrypt, input: Vec<u8>, init_iv: Vec<u8>) -> Vec<u8> {
+pub fn run(e: &Encrypt, input: &Vec<u8>, init_iv: Vec<u8>) -> Vec<u8> {
     let mut count = 0;
     let buf_size = e.block_size;
     let mut buf: Vec<u8> = Vec::new();
@@ -14,8 +14,12 @@ pub fn run(e: &Encrypt, input: Vec<u8>, init_iv: Vec<u8>) -> Vec<u8> {
 
     //loop through input until len reached
     while count < input.len() {
-        if count + buf_size >= input.len() {
-            let mut cipher_text = input[count..count + (input.len() - count)].to_vec();
+        let mut cipher_text: Vec<u8>;
+        let end_next_chunk = count + buf_size;
+
+        //look for padding here, if we're going to exceed then we pad
+        if end_next_chunk >= input.len() {
+            cipher_text = input[count..end_next_chunk].to_vec();
             cipher_text = padder::pad(cipher_text, buf_size);
             
             // xor IV with initial state
@@ -26,13 +30,13 @@ pub fn run(e: &Encrypt, input: Vec<u8>, init_iv: Vec<u8>) -> Vec<u8> {
                 cipher_text = next_iv.iter().zip(cipher_text.iter()).map(|(a,b)| a ^ b).collect::<Vec<u8>>();
             }
             
-            let mut cipher_text = encrypt(&e.expanded_key, e.rounds, cipher_text);
+            cipher_text = encrypt(&e.expanded_key, e.rounds, cipher_text);
             next_iv = cipher_text.clone();
 
             buf.append(&mut cipher_text);
         }
         else {
-            let mut cipher_text = input[count..(count + buf_size)].to_vec();
+            cipher_text = input[count..end_next_chunk].to_vec();
 
             // xor IV with initial state
             if init_iv_applied == false {
@@ -42,7 +46,7 @@ pub fn run(e: &Encrypt, input: Vec<u8>, init_iv: Vec<u8>) -> Vec<u8> {
                 cipher_text = next_iv.iter().zip(cipher_text.iter()).map(|(a,b)| a ^ b).collect::<Vec<u8>>();
             }
 
-            let mut cipher_text = encrypt(&e.expanded_key, e.rounds, cipher_text);
+            cipher_text = encrypt(&e.expanded_key, e.rounds, cipher_text);
             next_iv = cipher_text.clone();
 
             buf.append(&mut cipher_text);
@@ -115,18 +119,18 @@ fn encrypt(expanded_key: &Vec<u8>, rounds: u32, input: Vec<u8>) -> Vec<u8> {
 mod tests {
 
 use super::*;
-use crate::aes_mode::AesMode;
+use crate::encrypt::InitializationValue;
 use crate::utils::{iv_builder, hex_encoders, printer::print_state};
 
 #[test]
-pub fn test_encrypt_128() {
+pub fn test_encrypt_128_cbc() {
     let input: Vec<u8> = vec![0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d, 0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34];
     let cipher_key: Vec<u8> = vec![0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c];
     let result: Vec<u8> = vec![0x39, 0x02, 0xdc, 0x19, 0x25, 0xdc, 0x11, 0x6a, 0x84, 0x09, 0x85, 0x0b, 0x1d, 0xfb, 0x97, 0x32];
     let iv = iv_builder::get_iv(cipher_key.len());
 
-    let encryptor = Encrypt::cbc(cipher_key, AesMode::CBC, InitializationValue::None);
-    let output: Vec<u8> = run(&encryptor, input, iv);
+    let encryptor = Encrypt::cbc(cipher_key, InitializationValue::None);
+    let output: Vec<u8> = run(&encryptor, &input, iv);
 
     print_state(&output);
 
@@ -134,7 +138,7 @@ pub fn test_encrypt_128() {
 }
 
 #[test]
-pub fn test_encrypt_plain_128() {
+pub fn test_encrypt_plain_128_cbc() {
     let input = "00112233445566778899aabbccddeeff";
     let input: Vec<u8> = hex_encoders::str_to_hex_u8_buf(input);
     assert_eq!(input.len(), 16);
@@ -145,9 +149,9 @@ pub fn test_encrypt_plain_128() {
 
     let result = "69c4e0d86a7b0430d8cdb78070b4c55a";
 
-    let encryptor = Encrypt::cbc(cipher, AesMode::CBC, InitializationValue::None);
+    let encryptor = Encrypt::cbc(cipher, InitializationValue::None);
     // let output: Vec<u8> = helper::transform_state(encryptor.encrypt(input));
-    let output: Vec<u8> = run(&encryptor, input, iv);
+    let output: Vec<u8> = run(&encryptor, &input, iv);
     print_state(&output);
     let output: String = output.iter().map(|x| format!("{:02x}", x)).collect();
     println!("output: {}", &output);

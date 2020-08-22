@@ -12,19 +12,6 @@ pub struct Decrypt {
 
 impl Decrypt {
 
-    // pub fn new(key: Vec<u8>, mode: AesMode) -> Decrypt {
-    //     match mode {
-    //         AesMode::ECB => Self::ecb(key),
-    //         AesMode::CBC => Self::cbc(key, iv),
-    //     }
-    //     // Decrypt {
-    //     //     expanded_key: expander::expand(&key),
-    //     //     rounds: Self::get_rounds(key.len()),
-    //     //     // mode,
-    //     //     block_size: key.len(),
-    //     // }
-    // }
-
     fn get_rounds(key_len: usize) -> u32 {
         match key_len {
             16 => 10,
@@ -54,7 +41,7 @@ impl Decrypt {
         }
     }
     
-    pub fn start(self, input: Vec<u8>) -> Vec<u8> {
+    pub fn decrypt(self, input: Vec<u8>) -> Vec<u8> {
         match self.mode {
             AesMode::ECB => modes::ecb_decrypt::run(self, input),
             AesMode::CBC => modes::cbc_decrypt::run(&self, input),
@@ -66,7 +53,6 @@ impl Decrypt {
 mod tests {
 
 use super::*;
-use crate::aes_mode::AesMode;
 use crate::utils::{hex_encoders, printer};
 
 
@@ -78,7 +64,7 @@ use crate::utils::{hex_encoders, printer};
         let cipher_answer: Vec<u8> = vec![0xe3, 0x53, 0x77, 0x9c, 0x10, 0x79, 0xae, 0xb8, 0x27, 0x08, 0x94, 0x2d, 0xbe, 0x77, 0x18, 0x1a];
 
         let decryptor: Decrypt = Decrypt::cbc(key, iv);
-        let results = decryptor.start(cipher_answer);
+        let results = decryptor.decrypt(cipher_answer);
         assert_eq!(results, input);
         printer::print_hex_aligned(&results);
     }
@@ -91,7 +77,7 @@ use crate::utils::{hex_encoders, printer};
         let key: Vec<u8> = "YELLOW SUBMARINE".as_bytes().to_vec();
         let decrypt: Decrypt = Decrypt::ecb(key);
 
-        let results = decrypt.start(input);
+        let results = decrypt.decrypt(input);
         // dbg!(results);
         // dbg!(iv);
         // printer::print_hex_aligned(&results);
@@ -110,7 +96,7 @@ use crate::utils::{hex_encoders, printer};
         let iv: Vec<u8> = hex_encoders::str_to_hex_u8_buf("3bd9688be939895e463491759d30a92d");
         let decrypt: Decrypt = Decrypt::cbc(key, iv);
 
-        let results = decrypt.start(input);
+        let results = decrypt.decrypt(input);
         // dbg!(results);
         // dbg!(iv);
         // printer::print_hex_aligned(&results);

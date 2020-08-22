@@ -1,7 +1,6 @@
 use super::*;
 use crate::utils::tables as tbl;
 use crate::utils::helper::xy_idx;
-// use crate::utils::helper::overflow_check;
 
 pub fn mix(state: Vec<u8>) -> Vec<u8> {
     // println!("##### start mix column");
@@ -28,20 +27,8 @@ fn p_operate(state: &Vec<u8>, y: i32, row: usize) -> u8 {
     let t2 = galois_mult::gmul(state[xy_idx(1, y)], tbl::inv_m_mtrx(row, 1));
     let t3 = galois_mult::gmul(state[xy_idx(2, y)], tbl::inv_m_mtrx(row, 2));
     let t4 = galois_mult::gmul(state[xy_idx(3, y)], tbl::inv_m_mtrx(row, 3));
-    // println!("t1: {:02x} t2: {:02x} t3: {:02x} t4: {:02x} ", t1, t2, t3, t4);
     t1 ^ t2 ^ t3 ^ t4
 }
-
-// fn l_operate(state: &Vec<u8>, y: i32, row: usize) -> u8 {
-//     println!("{:02x}{:02x}{:02x}{:02x} ", state[xy_idx(0, y)], state[xy_idx(1, y)], state[xy_idx(2, y)], state[xy_idx(3, y)]);
-//     let t1 = overflow_check(tbl::l_box(state[xy_idx(0, y)]), tbl::l_box(tbl::inv_m_mtrx(row, 0)));
-//     let t2 = overflow_check(tbl::l_box(state[xy_idx(1, y)]), tbl::l_box(tbl::inv_m_mtrx(row, 1)));
-//     let t3 = overflow_check(tbl::l_box(state[xy_idx(2, y)]), tbl::l_box(tbl::inv_m_mtrx(row, 2)));
-//     let t4 = overflow_check(tbl::l_box(state[xy_idx(3, y)]), tbl::l_box(tbl::inv_m_mtrx(row, 3)));
-//     // println!("t1: {:02x} t2: {:02x} t3: {:02x} t4: {:02x} ", t1, t2, t3, t4);
-//     // println!("t1: {:02x} t2: {:02x} t3: {:02x} t4: {:02x} ", tbl::e_box(t1), tbl::e_box(t2), tbl::e_box(t3), tbl::e_box(t4));
-//     tbl::e_box(t1) ^ tbl::e_box(t2) ^ tbl::e_box(t3) ^ tbl::e_box(t4)
-// }
 
 #[cfg(test)]
 mod tests {
