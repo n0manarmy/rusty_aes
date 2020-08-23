@@ -9,9 +9,8 @@ pub fn run(e: Decrypt, input: Vec<u8>) -> Vec<u8> {
     let buf_size = e.block_size;
 
     while count < input.len() {
-        let slice = input[count..(count + buf_size)].to_vec();
-        assert_eq!(slice.len(), buf_size);
-        let mut cipher_text = decrypt(&e.expanded_key, e.rounds, slice); 
+        let mut cipher_text = input[count..(count + buf_size)].to_vec();
+        cipher_text = decrypt(&e.expanded_key, e.rounds, cipher_text); 
         buf.append(&mut cipher_text);
         count += buf_size;
     }

@@ -19,7 +19,7 @@ pub fn run(e: &Encrypt, input: &Vec<u8>, init_iv: Vec<u8>) -> Vec<u8> {
 
         //look for padding here, if we're going to exceed then we pad
         if end_next_chunk >= input.len() {
-            cipher_text = input[count..end_next_chunk].to_vec();
+            cipher_text = input[count..input.len()].to_vec();
             cipher_text = padder::pad(cipher_text, buf_size);
             
             // xor IV with initial state

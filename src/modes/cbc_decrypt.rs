@@ -13,7 +13,7 @@ pub fn run(e: &Decrypt, input: Vec<u8>) -> Vec<u8> {
     while count < input.len() {
 
         if count + buf_size >= input.len() {
-            let mut cipher_text = input[count..count + (input.len() - count)].to_vec();
+            let mut cipher_text = input[count..input.len()].to_vec();
             //apply padding
             cipher_text = padder::pad(cipher_text, buf_size);
 

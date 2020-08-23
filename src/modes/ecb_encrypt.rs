@@ -1,21 +1,43 @@
 use crate::utils::tables;
 use crate::encrypt::Encrypt;
-use crate::utils::padder;
+use crate::utils::{padder, printer::*};
 use crate::encrypt_funcs::{add_round_key, key_sch, mix_columns, shift_rows};
 
 pub fn run(e: Encrypt, input: &Vec<u8>) -> Vec<u8> {
     let mut buf: Vec<u8> = Vec::new();
     let mut count = 0;
-    let buf_size = e.block_size;
+    let block_size = e.block_size;
 
     while count < input.len() {
         let mut cipher_text: Vec<u8>;
-        let end_next_chunk = count + buf_size;
+        let end_next_chunk = count + block_size;
 
         if end_next_chunk >= input.len() {
-            cipher_text = input[count..end_next_chunk].to_vec();
-            cipher_text = padder::pad(cipher_text, buf_size);
-            cipher_text = encrypt(&e.expanded_key, e.rounds, cipher_text);
+            //fill cipher_text with last of input
+            cipher_text = input[count..input.len()].to_vec();
+            //pad cipher_text with padding bits
+            cipher_text = padder::pad(cipher_text, block_size);
+            //check for single character padding that pads an additional block
+            if cipher_text.len() == block_size * 2 {
+                //we encrypt the padded cipher_text
+                // assert_eq!(cipher_text.len(), block_size * 2);
+                let (first, second) = cipher_text.split_at(16);
+                // print_hex_aligned(&first.to_vec());
+                // print_hex_aligned(&second.to_vec());
+                let first = encrypt(&e.expanded_key, e.rounds, first.to_vec());
+                // print!("fist after encrypt");
+                // print_hex_aligned(&first);
+                let second = encrypt(&e.expanded_key, e.rounds, second.to_vec());
+                // print!("second after encrypt");
+                // print_hex_aligned(&second);
+                cipher_text = [first, second].concat();
+                
+            } else {
+                //we encrypt the padded cipher_text
+                // assert_eq!(cipher_text.len(), block_size);
+                cipher_text = encrypt(&e.expanded_key, e.rounds, cipher_text);
+            }
+            
         }
         else {
             cipher_text = input[count..end_next_chunk].to_vec();
@@ -23,9 +45,11 @@ pub fn run(e: Encrypt, input: &Vec<u8>) -> Vec<u8> {
         }
 
         buf.append(&mut cipher_text);
-        count += buf_size;
+        count += block_size;
     }
 
+    // print!("Final buf delivered");
+    // print_hex_aligned(&buf);
     buf
 }
 
