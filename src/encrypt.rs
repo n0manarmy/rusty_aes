@@ -1,5 +1,3 @@
-#![crate_name = "rusty_aes"]
-
 use crate::key_expander::expander;
 use crate::modes;
 use crate::aes_mode::AesMode;
@@ -12,6 +10,15 @@ pub enum InitializationValue {
 }
 
 /// Encrypt values required are represented here
+/// 
+/// # Arguments
+/// 
+/// `expanded_key`  - The key after its been expanded by the AES process
+/// `rounds`        - The number of rounds based on the key size
+/// `mode`          - The AES encryption mode (CBC, ECB)
+/// `block_size`    - The size of the blocks used based on key size
+/// `iv`            - The initialization vector value or None.
+/// 
 pub struct Encrypt {
     pub expanded_key: Vec<u8>,
     pub rounds: u32,

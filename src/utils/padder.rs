@@ -1,6 +1,6 @@
 use crate::utils::printer::*;
 
-/// Padder takes len and buf and appends to fill buffer to correct length
+/// pad takes len and buf and appends to fill buffer to correct length
 /// 
 /// # Arguments
 /// 
@@ -29,13 +29,21 @@ pub fn pad(mut val: Vec<u8>, block_size: usize) -> Vec<u8> {
     }
 }
 
+
+/// clear_paddning reads the last byte of the vec and tnen reads for
+/// the same value that many times in the end of the vec. If the value
+/// isn't consistent, then its not padded and we return. Otherwise we
+/// remove the pad bytes and return the buffer.
+/// 
+/// # Arguments
+/// 
+/// `buf`       - The byte buffer
+/// 
 pub fn clear_padding(mut buf: Vec<u8>) -> Vec<u8> {
     // print!("clear_padding enter: ");
     // print_hex_aligned(&buf);
     let pad_val = buf[buf.len() - 1];
-    if pad_val > 17 {
-        return buf;
-    } else if pad_val > 1 {
+    if pad_val > 1 {
         let mut pos = buf.len() - 1;
         let mut pad_val_count = pad_val;
         while pad_val_count > 0 {
