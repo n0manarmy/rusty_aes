@@ -108,7 +108,7 @@ use crate::encrypt::Encrypt;
         input.push(0x80);
         let text: String = input.iter().map(|x| *x as char).collect();
         
-        let e: Encrypt = Encrypt::ecb(key.clone());
+        let mut e: Encrypt = Encrypt::ecb(key.clone());
         let cipher_text: Vec<u8> = e.encrypt(&input);
 
         let d: Decrypt = Decrypt::ecb(key);

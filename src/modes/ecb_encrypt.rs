@@ -3,7 +3,7 @@ use crate::encrypt::Encrypt;
 use crate::utils::{padder, printer::*};
 use crate::encrypt_funcs::{add_round_key, key_sch, mix_columns, shift_rows};
 
-pub fn run(e: Encrypt, input: &Vec<u8>) -> Vec<u8> {
+pub fn run(e: &Encrypt, input: &Vec<u8>) -> Vec<u8> {
     let mut buf: Vec<u8> = Vec::new();
     let mut input_consumed = 0;
     let block_size = e.block_size;
@@ -135,7 +135,7 @@ mod tests {
         let key: Vec<u8> = vec![0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c];
         let result: Vec<u8> = vec![0x39, 0x25, 0x84, 0x1d, 0x02, 0xdc, 0x09, 0xfb, 0xdc, 0x11, 0x85, 0x97, 0x19, 0x6a, 0x0b, 0x32]; 
 
-        let e = Encrypt::ecb(key);
+        let mut e = Encrypt::ecb(key);
         let output: Vec<u8> = e.encrypt(&input);
 
         assert_eq!(output, result);
@@ -151,7 +151,7 @@ mod tests {
 
         let result = "69c4e0d86a7b0430d8cdb78070b4c55a";
 
-        let e = Encrypt::ecb(cipher);
+        let mut e = Encrypt::ecb(cipher);
         // let output: Vec<u8> = helper::transform_state(encryptor.encrypt(input));
         let output: Vec<u8> = e.encrypt(&input);
         printer::print_state(&output);
