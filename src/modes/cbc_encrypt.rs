@@ -11,6 +11,7 @@ pub fn run(e: &Encrypt, input: &Vec<u8>, init_iv: Vec<u8>) -> Vec<u8> {
     let mut buf: Vec<u8> = Vec::new();
     let mut next_iv: Vec<u8> = Vec::new();
     let mut init_iv_applied = false;
+    dbg!(buf_size);
 
     //loop through input until len reached
     while count < input.len() {

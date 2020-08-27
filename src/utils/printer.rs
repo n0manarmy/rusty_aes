@@ -34,3 +34,12 @@ pub fn print_state(state: &Vec<u8>) {
     }
     println!();
 }
+
+pub fn print_vec(text: &Vec<u8>) -> String {
+    let mut results = String::new();
+    for t in text {
+        results.push(*t as char);
+    }
+
+    results
+}

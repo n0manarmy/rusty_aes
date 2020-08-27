@@ -37,7 +37,7 @@ impl Encrypt {
     /// # Examples
     /// 
     /// ```
-    /// let key: Vec<u8> = "MYSIXTEENBITSKEY".as_bytes().to_vec();
+    /// let key: Vec<u8> = "MYSIXTEENBYTEKEY".as_bytes().to_vec();
     /// let encryptor: Encryt = Encrypt::new(key)
     /// ```
     pub fn ecb(key: Vec<u8>) -> Encrypt {
@@ -45,7 +45,7 @@ impl Encrypt {
             expanded_key: expander::expand(&key),
             rounds: Self::get_rounds(key.len()),
             mode: AesMode::ECB,
-            block_size: key.len(),
+            block_size: 16,
             iv: InitializationValue::None,
         }
     }
@@ -62,7 +62,7 @@ impl Encrypt {
     /// # Examples
     /// 
     /// ```
-    /// let key: Vec<u8> = "MYSIXTEENBITSKEY".as_bytes().to_vec();
+    /// let key: Vec<u8> = "MYSIXTEENBYTEKEY".as_bytes().to_vec();
     /// let encryptor: Encryt = Encrypt::new(key)
     /// ```
     pub fn cbc(key: Vec<u8>, iv: InitializationValue) -> Encrypt {

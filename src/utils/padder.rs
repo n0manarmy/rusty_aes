@@ -12,10 +12,10 @@ pub fn pad(mut val: Vec<u8>, block_size: usize) -> Vec<u8> {
     if pad_len == 0 {
         return val;
     }
-    //we pad 17 17x, because if we pad 1, there could be a 1 value. 
+    //we pad block size x, because if we pad 1, there could be a 1 value. 
     else if pad_len == 1 {
-        for _x in 0..17 {
-            val.push(17 as u8)
+        for _x in 0..block_size + 1 {
+            val.push((block_size + 1) as u8)
         }
         // print!("single pad vaue required: ");
         // print_hex_aligned(&val);
@@ -28,7 +28,6 @@ pub fn pad(mut val: Vec<u8>, block_size: usize) -> Vec<u8> {
         return val;
     }
 }
-
 
 /// clear_paddning reads the last byte of the vec and tnen reads for
 /// the same value that many times in the end of the vec. If the value

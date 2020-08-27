@@ -25,7 +25,7 @@ impl Decrypt {
         Decrypt {
             expanded_key: expander::expand(&key),
             rounds: Self::get_rounds(key.len()),
-            block_size: key.len(),
+            block_size: 16,
             iv: Vec::new(),
             mode: AesMode::ECB,
         }
