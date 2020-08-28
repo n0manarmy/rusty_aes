@@ -23,23 +23,6 @@ fn test_cbc_encrypt_32_bit_key() {
 }
 
 #[test]
-fn test_cbc_encrypt_24_bit_key_with_single() {
-    let message: Vec<u8> = "This".as_bytes().to_vec();
-    let key: Vec<u8> = "THISISTHE24BYTEKEYWEWUSE".as_bytes().to_vec();
-    dbg!(key.len());
-    let mut e: Encrypt = Encrypt::cbc(key.clone(), InitializationValue::None);
-    let cipher_text = e.encrypt(&message);
-
-    dbg!(cipher_text.len());
-
-    let d: Decrypt = Decrypt::cbc(key, e.get_iv());
-    let results = d.decrypt(cipher_text);
-
-    println!("{}", print_vec(&results));
-    assert_eq!(message, results);
-}
-
-#[test]
 fn test_cbc_encrypt_24_bit_key() {
     let message: Vec<u8> = "This is a test message that will be encrypted. The message is encrypted by rusty aes.".as_bytes().to_vec();
     let key: Vec<u8> = "THISISTHE24BYTEKEYWEWUSE".as_bytes().to_vec();

@@ -36,7 +36,7 @@ impl Decrypt {
             expanded_key: expander::expand(&key),
             rounds: Self::get_rounds(key.len()),
             iv,
-            block_size: key.len(),
+            block_size: 16,
             mode: AesMode::CBC,
         }
     }

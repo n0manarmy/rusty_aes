@@ -48,7 +48,7 @@ pub fn run(e: &Decrypt, input: Vec<u8>) -> Vec<u8> {
         count += buf_size;
     }
 
-    buf
+    padder::clear_padding(buf)
 }
 
 fn decrypt(expanded_key: &Vec<u8>, rounds: u32, input: Vec<u8>) -> Vec<u8> {

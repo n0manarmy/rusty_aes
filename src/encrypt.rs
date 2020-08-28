@@ -77,7 +77,7 @@ impl Encrypt {
             expanded_key: expander::expand(&key),
             rounds: Self::get_rounds(key.len()),
             mode: AesMode::CBC,
-            block_size: key.len(),
+            block_size: 16,
             iv,
         }
 
