@@ -16,6 +16,8 @@ use crate::encrypt_funcs::{add_round_key, key_sch, mix_columns, shift_rows};
 /// let e: Encrypt = Encrypt::new();
 /// let input: Vec<u8> = "Encrypt me".as_bytes().to_vec();
 /// e.run(&e, &input);
+/// ```
+/// 
 pub fn run(e: &Encrypt, input: &Vec<u8>) -> Vec<u8> {
     let mut buf: Vec<u8> = Vec::new();
     let mut input_consumed = 0;
@@ -55,7 +57,14 @@ pub fn run(e: &Encrypt, input: &Vec<u8>) -> Vec<u8> {
 
     buf
 }
-
+/// Performs the encryption process based on the NIST documentation
+/// 
+/// # Arguements
+/// 
+/// * &Vec<u8> expanded key initialized by Encrypt constructor
+/// * u32 rounds to perform, set by the Encrypt constructor and based on key size
+/// * Vec<u8> input to encrypt using this function
+/// 
 fn encrypt(expanded_key: &Vec<u8>, rounds: u32, input: Vec<u8>) -> Vec<u8> {
     let mut x = 0;
     // print!("{} - input", x);

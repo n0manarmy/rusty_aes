@@ -7,6 +7,12 @@ use crate::utils::printer::*;
 /// `val`       - the current buffer
 /// `pad_len`   - The len to pad
 /// 
+/// # Examples
+/// 
+/// ```
+/// let mut val: Vec<u8> = "junkdata".as_bytes().to_vec();
+/// let block_size = 16;
+/// 
 pub fn pad(mut val: Vec<u8>, block_size: usize) -> Vec<u8> {
     let pad_len = block_size - val.len();
     if pad_len == 0 {
