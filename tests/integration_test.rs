@@ -4,9 +4,24 @@ extern crate rand;
 use std::thread;
 
 use crate::rand::prelude::*;
+use std::io::prelude::*;
 use crate::rusty_aes::encrypt::{Encrypt, InitializationValue};
 use crate::rusty_aes::decrypt::Decrypt;
 use crate::rusty_aes::utils::{iv_builder, printer::*};
+
+#[test]
+fn test_ecb_decrypt_openssl_file() {
+    let file_name = std::path::Path::new("README.enc");
+    let mut f = std::fs::File::open(file_name).expect("Error reading file");
+    let mut buffer: Vec<u8> = Vec::new();
+    f.read_to_end(&mut buffer).expect("Error reading file to end");
+
+    let key = "YELLOW_SUBMARINE";
+    let d: Decrypt = Decrypt::ecb(key.as_bytes().to_vec());
+    let results = d.decrypt(buffer);
+    println!("{}", print_vec(&results));
+
+}
 
 #[test]
 fn test_cbc_encrypt_32_bit_key() {

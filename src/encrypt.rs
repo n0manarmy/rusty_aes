@@ -16,7 +16,7 @@ pub enum InitializationValue {
 /// `expanded_key`  - The key after its been expanded by the AES process
 /// `rounds`        - The number of rounds based on the key size
 /// `mode`          - The AES encryption mode (CBC, ECB)
-/// `block_size`    - The size of the blocks used based on key size
+/// `block_size`    - The size of the blocks used based on key size. Fixed 16 bytes
 /// `iv`            - The initialization vector value or None.
 /// 
 pub struct Encrypt {
@@ -50,6 +50,8 @@ impl Encrypt {
         }
     }
 
+    /// Helper function to return the IV after its initialized
+    /// 
     pub fn get_iv(self) -> Vec<u8> {
         match self.iv {
             InitializationValue::IV(v) => v,
@@ -102,6 +104,7 @@ impl Encrypt {
     /// # Returns
     /// 
     /// * A Vec<u8> of cipher text encrypted
+    /// 
     pub fn encrypt(&mut self, input: &Vec<u8>) -> Vec<u8> {
         match self.mode {
             AesMode::ECB => modes::ecb_encrypt::run(&self, &input),
