@@ -32,7 +32,7 @@ impl Encrypt {
     /// 
     /// # Arguments
     /// 
-    /// * `key` - A Vec<u8> representation of the key value. 
+    /// * `Vec<u8>` representation of the key value. 
     /// 
     /// # Examples
     /// 
@@ -63,10 +63,10 @@ impl Encrypt {
     /// 
     /// # Arguments
     /// 
-    /// * `key` - A Vec<u8> representation of the key value. 
-    /// * `iv`  - A IV ENUM Value if an IV is specified. If An IV is not specified then one will be (weakly) 
-    ///             generated and pushed back into the self.encrypt when execution is done. This can be retrieved
-    ///             by accessing the struct iv value after execution.
+    /// * `Vec<u8>` representation of the key value. 
+    /// * `IV` ENUM Value if an IV is specified. If An IV is not specified then one will be (weakly) generated 
+    ///     and pushed back into the self.encrypt when execution is done. This can be retrieved by accessing 
+    ///     the struct iv value after execution.
     /// 
     /// # Examples
     /// 
@@ -108,13 +108,13 @@ impl Encrypt {
     pub fn encrypt(&mut self, input: &Vec<u8>) -> Vec<u8> {
         match self.mode {
             AesMode::ECB => modes::ecb_encrypt::run(&self, &input),
+
             AesMode::CBC => {
                 let iv: Vec<u8> = match &self.iv {
                     InitializationValue::None => iv_builder::get_iv(self.block_size),
                     InitializationValue::IV(v) => v.clone(),
                 };
                 self.iv = InitializationValue::IV(iv.clone());
-                
                 modes::cbc_encrypt::run(&self, &input, iv)
             },
         }

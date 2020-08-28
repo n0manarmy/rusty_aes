@@ -3,6 +3,19 @@ use crate::encrypt::Encrypt;
 use crate::utils::{padder, printer::*};
 use crate::encrypt_funcs::{add_round_key, key_sch, mix_columns, shift_rows};
 
+/// Run the encryption program with the initialized encryption engine and input file
+/// 
+/// # Arguments
+/// 
+/// * `Encrypt` engine containing the initiailized values for the procedures
+/// * `&Vec<u8>` containing the input to be encrypted
+/// 
+/// # Examples
+/// 
+/// ```
+/// let e: Encrypt = Encrypt::new();
+/// let input: Vec<u8> = "Encrypt me".as_bytes().to_vec();
+/// e.run(&e, &input);
 pub fn run(e: &Encrypt, input: &Vec<u8>) -> Vec<u8> {
     let mut buf: Vec<u8> = Vec::new();
     let mut input_consumed = 0;
@@ -20,21 +33,13 @@ pub fn run(e: &Encrypt, input: &Vec<u8>) -> Vec<u8> {
             //check for single character padding that pads an additional block
             if cipher_text.len() == block_size * 2 {
                 //we encrypt the padded cipher_text
-                // assert_eq!(cipher_text.len(), block_size * 2);
                 let (first, second) = cipher_text.split_at(block_size);
-                // print_hex_aligned(&first.to_vec());
-                // print_hex_aligned(&second.to_vec());
                 let first = encrypt(&e.expanded_key, e.rounds, first.to_vec());
-                // print!("fist after encrypt");
-                // print_hex_aligned(&first);
                 let second = encrypt(&e.expanded_key, e.rounds, second.to_vec());
-                // print!("second after encrypt");
-                // print_hex_aligned(&second);
                 cipher_text = [first, second].concat();
                 
             } else {
                 //we encrypt the padded cipher_text
-                // assert_eq!(cipher_text.len(), block_size);
                 cipher_text = encrypt(&e.expanded_key, e.rounds, cipher_text);
             }
             
