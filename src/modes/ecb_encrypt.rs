@@ -21,21 +21,20 @@ use crate::encrypt_funcs::{add_round_key, key_sch, mix_columns, shift_rows};
 pub fn run(e: &Encrypt, input: &Vec<u8>) -> Vec<u8> {
     let mut buf: Vec<u8> = Vec::new();
     let mut input_consumed = 0;
-    let block_size = e.block_size;
 
     while input_consumed < input.len() {
         let mut cipher_text: Vec<u8>;
-        let end_next_chunk = input_consumed + block_size;
+        let end_next_chunk = input_consumed + 16;
 
         if end_next_chunk >= input.len() {
             //fill cipher_text with last of input
             cipher_text = input[input_consumed..input.len()].to_vec();
             //pad cipher_text with padding bits
-            cipher_text = padder::pad(cipher_text, block_size);
+            cipher_text = padder::pad(cipher_text);
             //check for single character padding that pads an additional block
-            if cipher_text.len() == block_size * 2 {
+            if cipher_text.len() == 16 * 2 {
                 //we encrypt the padded cipher_text
-                let (first, second) = cipher_text.split_at(block_size);
+                let (first, second) = cipher_text.split_at(16);
                 let first = encrypt(&e.expanded_key, e.rounds, first.to_vec());
                 let second = encrypt(&e.expanded_key, e.rounds, second.to_vec());
                 cipher_text = [first, second].concat();
@@ -52,7 +51,7 @@ pub fn run(e: &Encrypt, input: &Vec<u8>) -> Vec<u8> {
         }
 
         buf.append(&mut cipher_text);
-        input_consumed += block_size;
+        input_consumed += 16;
     }
 
     buf

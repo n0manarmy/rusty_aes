@@ -7,21 +7,19 @@ use crate::encrypt_funcs::{add_round_key, key_sch, mix_columns, shift_rows};
 
 pub fn run(e: &Encrypt, input: &Vec<u8>, init_iv: Vec<u8>) -> Vec<u8> {
     let mut count = 0;
-    let buf_size = e.block_size;
     let mut buf: Vec<u8> = Vec::new();
     let mut next_iv: Vec<u8> = Vec::new();
     let mut init_iv_applied = false;
-    dbg!(buf_size);
 
     //loop through input until len reached
     while count < input.len() {
         let mut cipher_text: Vec<u8>;
-        let end_next_chunk = count + buf_size;
+        let end_next_chunk = count + 16;
 
         //look for padding here, if we're going to exceed then we pad
         if end_next_chunk >= input.len() {
             cipher_text = input[count..input.len()].to_vec();
-            cipher_text = padder::pad(cipher_text, buf_size);
+            cipher_text = padder::pad(cipher_text);
             
             // xor IV with initial state
             if init_iv_applied == false {
@@ -52,7 +50,7 @@ pub fn run(e: &Encrypt, input: &Vec<u8>, init_iv: Vec<u8>) -> Vec<u8> {
 
             buf.append(&mut cipher_text);
         }
-        count += buf_size;
+        count += 16;
     }
 
     buf

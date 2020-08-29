@@ -20,10 +20,10 @@ pub enum InitializationValue {
 /// `iv`            - The initialization vector value or None.
 /// 
 pub struct Encrypt {
+    pub key: Vec<u8>,
     pub expanded_key: Vec<u8>,
     pub rounds: u32,
     pub mode: AesMode,
-    pub block_size: usize,
     pub iv: InitializationValue,
 }
 
@@ -42,10 +42,10 @@ impl Encrypt {
     /// ```
     pub fn ecb(key: Vec<u8>) -> Encrypt {
         Encrypt {
+            key: key.clone(),
             expanded_key: expander::expand(&key),
             rounds: Self::get_rounds(key.len()),
             mode: AesMode::ECB,
-            block_size: 16,
             iv: InitializationValue::None,
         }
     }
@@ -76,10 +76,10 @@ impl Encrypt {
     /// ```
     pub fn cbc(key: Vec<u8>, iv: InitializationValue) -> Encrypt {
         Encrypt {
+            key: key.clone(),
             expanded_key: expander::expand(&key),
             rounds: Self::get_rounds(key.len()),
             mode: AesMode::CBC,
-            block_size: 16,
             iv,
         }
 
@@ -111,7 +111,7 @@ impl Encrypt {
 
             AesMode::CBC => {
                 let iv: Vec<u8> = match &self.iv {
-                    InitializationValue::None => iv_builder::get_iv(self.block_size),
+                    InitializationValue::None => iv_builder::get_iv(self.key.len()),
                     InitializationValue::IV(v) => v.clone(),
                 };
                 self.iv = InitializationValue::IV(iv.clone());

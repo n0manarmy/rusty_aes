@@ -56,8 +56,8 @@ mod tests {
         print_state(&state);
 
         assert_eq!(state[xy_idx(0, 0)], 0x04);
-        assert_eq!(state[xy_idx(0, 1)], 0x66);
-        assert_eq!(state[xy_idx(0, 2)], 0x81);
-        assert_eq!(state[xy_idx(0, 3)], 0xe5);
+        assert_eq!(state[xy_idx(1, 0)], 0x66);
+        assert_eq!(state[xy_idx(2, 0)], 0x81);
+        assert_eq!(state[xy_idx(3, 0)], 0xe5);
     }
 }

@@ -11,20 +11,19 @@ use crate::utils::printer::*;
 /// 
 /// ```
 /// let mut val: Vec<u8> = "junkdata".as_bytes().to_vec();
-/// let block_size = 16;
 /// 
 /// pad(val, block_size);
 /// ```
 /// 
-pub fn pad(mut val: Vec<u8>, block_size: usize) -> Vec<u8> {
-    let pad_len = block_size - val.len();
+pub fn pad(mut val: Vec<u8>) -> Vec<u8> {
+    let pad_len = 16 - val.len();
     if pad_len == 0 {
         return val;
     }
     //we pad block size x, because if we pad 1, there could be a 1 value. 
     else if pad_len == 1 {
-        for _x in 0..block_size + 1 {
-            val.push((block_size + 1) as u8)
+        for _x in 0..16 + 1 {
+            val.push((16 + 1) as u8)
         }
         // print!("single pad vaue required: ");
         // print_hex_aligned(&val);
@@ -85,23 +84,23 @@ mod tests {
     #[test]
     pub fn test_pad() {
         let val: Vec<u8> = "test".as_bytes().to_vec();
-        let val = pad(val, 16);
+        let val = pad(val);
         print_hex_aligned(&val);
         assert_eq!(val[15], 12 as u8);
         let val: Vec<u8> = "testtest".as_bytes().to_vec();
-        let val = pad(val, 16);
+        let val = pad(val);
         print_hex_aligned(&val);
         assert_eq!(val[15], 8 as u8);
         let val: Vec<u8> = "testtesttest".as_bytes().to_vec();
-        let val = pad(val, 16);
+        let val = pad(val);
         print_hex_aligned(&val);
         assert_eq!(val[15], 4 as u8);
         let val: Vec<u8> = "testtesttesttes".as_bytes().to_vec();
-        let val = pad(val, 16);
+        let val = pad(val);
         print_hex_aligned(&val);
         assert_eq!(val[15], 17);
         let val: Vec<u8> = "testtesttestte".as_bytes().to_vec();
-        let val = pad(val, 16);
+        let val = pad(val);
         print_hex_aligned(&val);
         assert_eq!(val[15], 2);
     }

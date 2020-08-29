@@ -28,26 +28,7 @@ mod tests {
     use crate::utils::printer::print_state;
     use crate::key_expander;
     use crate::encrypt_funcs::key_sch;
-
-    #[test]
-    pub fn test_first_add_round() {
-        let cipher_key: Vec<u8> = vec![0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c];
-        let input: Vec<u8> = vec![0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d, 0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34];
-        let expanded: Vec<u8> = key_expander::expander::expand(&cipher_key);
-        print_state(&expanded);
-
-        // println!("transform state");
-        // let state = transform_state(input);
-        // print_state(&state);
-
-        println!("add round key");
-        let this_exp_key = key_sch::get(0, &expanded);
-        // let this_exp_key = transform_state(this_exp_key);
-        let state = xor(input, this_exp_key);
-        print_state(&state);
-        
-    }
-
+    
     #[test]
     pub fn test_single_add_round() {
         let state: Vec<u8> =  vec![0x54, 0x77, 0x6F, 0x20, 0x4F, 0x6E, 0x65, 0x20, 0x4E, 0x69, 0x6E, 0x65, 0x20, 0x54, 0x77, 0x6F];
