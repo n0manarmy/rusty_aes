@@ -64,7 +64,7 @@ mod tests {
             x += 1;
         }
 
-        printer::print_state(&t_state);
+        // printer::print_state(&t_state);
     }
 
 

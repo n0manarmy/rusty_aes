@@ -137,7 +137,7 @@ use crate::utils::printer;
         let mut encryptor: Encrypt = Encrypt::cbc(key, iv);
         let results = encryptor.encrypt(&input);
         assert_eq!(results, cipher_answer);
-        printer::print_hex_aligned(&results);
+        // printer::print_hex_aligned(&results);
 
 
 
@@ -152,7 +152,7 @@ use crate::utils::printer;
         let results = encryptor.encrypt(&input);
         // dbg!(results);
         // dbg!(iv);
-        printer::print_hex_aligned(&results);
+        // printer::print_hex_aligned(&results);
     }
 
     #[test]
@@ -164,7 +164,7 @@ use crate::utils::printer;
         let results = encryptor.encrypt(&input);
         // dbg!(results);
         // dbg!(iv);
-        printer::print_hex_aligned(&results);
+        // printer::print_hex_aligned(&results);
 
 
     }

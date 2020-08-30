@@ -77,12 +77,12 @@ mod tests {
         // let state = shift(state);
         // print_state(&state);
 
-        print_state(&s2);
+        // print_state(&s2);
         // let s2 = inv_shift_rows(transform_state(s2));
         // print_state(&s2);
         // let s2 = transform_state(s2);
         // print_state(&s2);
-        print_state(&s2_r);
+        // print_state(&s2_r);
         assert_eq!(shift(s2), s2_r);
     }
 }

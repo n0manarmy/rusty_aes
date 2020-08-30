@@ -167,9 +167,9 @@ mod tests {
         let mut e = Encrypt::ecb(cipher);
         // let output: Vec<u8> = helper::transform_state(encryptor.encrypt(input));
         let output: Vec<u8> = e.encrypt(&input);
-        printer::print_state(&output);
+        // printer::print_state(&output);
         let output: String = output.iter().map(|x| format!("{:02x}", x)).collect();
-        println!("output: {}", &output);
+        // println!("output: {}", &output);
         assert_eq!(&output, result);
     }
 

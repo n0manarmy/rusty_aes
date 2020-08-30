@@ -32,7 +32,7 @@ pub fn l_box(val: u8) -> u8 {
     let xy_idx = box_xy_idx(val);
     // println!("l_box val {:02} {:02}", xy_idx.0, xy_idx.1);
     if xy_idx.0 == 0 && xy_idx.1 == 0 {
-        println!("0,0 found with val {:02x}", val);
+        // println!("0,0 found with val {:02x}", val);
         return val;
     }
 
@@ -90,6 +90,7 @@ pub fn inv_s_box(val: u8) -> u8 {
 pub fn s_box(val: u8) -> u8 {
     
     let xy_idx = box_xy_idx(val);
+    // dbg!(xy_idx);
 
     let s_box: [[u8; 16];16] = 
     [
@@ -111,6 +112,8 @@ pub fn s_box(val: u8) -> u8 {
         [0x8c,0xa1,0x89,0x0d,0xbf,0xe6,0x42,0x68,0x41,0x99,0x2d,0x0f,0xb0,0x54,0xbb,0x16]
     ];
 
+    // dbg!(s_box[xy_idx.0][xy_idx.1]);
+    
     s_box[xy_idx.0][xy_idx.1]
 }
 
@@ -162,14 +165,14 @@ mod tests {
         let state: Vec<u8> = vec![0xD4, 0xBF, 0x5D, 0x30, 0xD4, 0xBF, 0x5D, 0x30, 0xD4, 0xBF, 0x5D, 0x30, 0xD4, 0xBF, 0x5D, 0x30];
         let state: Vec<u8> = state.iter().map(|x| s_box(*x)).collect();
 
-        for x in 0..state.len() {
-            if x % 4 == 0 {
-                println!();
-                print!("{} ", (x/4) + 1);
-            }
-            print!("{:02x} ", state[x]);
-        }
-        println!();
+        // for x in 0..state.len() {
+        //     if x % 4 == 0 {
+        //         println!();
+        //         print!("{} ", (x/4) + 1);
+        //     }
+        //     print!("{:02x} ", state[x]);
+        // }
+        // println!();
     }
 
 
@@ -178,29 +181,31 @@ mod tests {
         let state: Vec<u8> = vec![0xD4, 0xBF, 0x5D, 0x30, 0xD4, 0xBF, 0x5D, 0x30, 0xD4, 0xBF, 0x5D, 0x30, 0xD4, 0xBF, 0x5D, 0x30];
         let state: Vec<u8> = state.iter().map(|x| inv_s_box(*x)).collect();
 
-        for x in 0..state.len() {
-            if x % 4 == 0 {
-                println!();
-                print!("{} ", (x/4) + 1);
-            }
-            print!("{:02x} ", state[x]);
-        }
-        println!();
+        // for x in 0..state.len() {
+        //     if x % 4 == 0 {
+        //         println!();
+        //         print!("{} ", (x/4) + 1);
+        //     }
+        //     print!("{:02x} ", state[x]);
+        // }
+        // println!();
     }
 
     #[test]
     pub fn test_l_box_lookup() {
         let val: Vec<u8> = vec![0xd4, 0x02, 0xbf, 0x03, 0x5d, 0x30];
-        for v in val {
-            println!("{:02x}", l_box(v));
-        }
+        // for v in val {
+        //     println!("{:02x}", l_box(v));
+        // }
     }
+
+
     #[test]
     pub fn test_get_sbox() {
         let val: Vec<u8> = vec![0xff, 0xff, 0xff, 0xff, 0xff];
-        for v in val {
-            println!("{:02x}", s_box(v));
-        }
+        // for v in val {
+        //     println!("{:02x}", s_box(v));
+        // }
         // assert_eq!(sbox_xy_idx(val), 0xd4);
     }
 }

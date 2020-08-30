@@ -95,8 +95,8 @@ mod tests {
         let encrypt_key: Vec<u8> = vec![0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c];
         let result: u32 = 0x09cf4f3c;
         let key: u32 = ek((4-1) * 4, &encrypt_key);
-        println!("result: {:02x}", result);
-        println!("key: {:02x}", key);
+        // println!("result: {:02x}", result);
+        // println!("key: {:02x}", key);
         assert_eq!(key, result)
 
     }
@@ -111,7 +111,8 @@ mod tests {
     pub fn test_sub_word() {
         let val: u32 = 0x19;
         let result = encrypt_funcs::byte_sub::byte_sub(val);
-        assert_eq!(result, 0xd4);
+        dbg!(result);
+        assert_eq!(result, 0x636363d4);
 
     }
 
@@ -127,7 +128,7 @@ mod tests {
         let key: u32 = 0x09CF4F3C;
         let result: u32 = 0xCF4F3C09;
         let key = rot_word(key);
-        println!("{:02x}", key);
+        // println!("{:02x}", key);
         assert_eq!(key, result);
     }
 

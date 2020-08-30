@@ -53,7 +53,7 @@ mod tests {
         // let state = transform_state(state);
 
         let state = table_mix(state);
-        print_state(&state);
+        // print_state(&state);
 
         assert_eq!(state[xy_idx(0, 0)], 0x04);
         assert_eq!(state[xy_idx(1, 0)], 0x66);

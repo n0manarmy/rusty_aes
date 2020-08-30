@@ -66,7 +66,7 @@ use crate::utils::{hex_encoders, printer};
         let decryptor: Decrypt = Decrypt::cbc(key, iv);
         let results = decryptor.decrypt(cipher_answer);
         assert_eq!(results, input);
-        printer::print_hex_aligned(&results);
+        // printer::print_hex_aligned(&results);
     }
 
 
@@ -81,10 +81,10 @@ use crate::utils::{hex_encoders, printer};
         // dbg!(results);
         // dbg!(iv);
         // printer::print_hex_aligned(&results);
-        for r in results {
-            print!("{}", r as char);
-        }
-        println!();
+        // for r in results {
+        //     print!("{}", r as char);
+        // }
+        // println!();
     }
 
 
@@ -100,9 +100,9 @@ use crate::utils::{hex_encoders, printer};
         // dbg!(results);
         // dbg!(iv);
         // printer::print_hex_aligned(&results);
-        for r in results {
-            print!("{}", r as char);
-        }
-        println!();
+        // for r in results {
+        //     print!("{}", r as char);
+        // }
+        // println!();
     }
 }

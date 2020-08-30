@@ -36,7 +36,7 @@ mod tests {
         let iter = state.iter().zip(cipher.iter());
 
         let results: Vec<u8> = iter.map(|(s,c)| s ^ c).collect();
-        print_state(&results);
+        // print_state(&results);
     }
 
 }

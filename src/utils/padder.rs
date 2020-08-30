@@ -85,23 +85,23 @@ mod tests {
     pub fn test_pad() {
         let val: Vec<u8> = "test".as_bytes().to_vec();
         let val = pad(val);
-        print_hex_aligned(&val);
+        // print_hex_aligned(&val);
         assert_eq!(val[15], 12 as u8);
         let val: Vec<u8> = "testtest".as_bytes().to_vec();
         let val = pad(val);
-        print_hex_aligned(&val);
+        // print_hex_aligned(&val);
         assert_eq!(val[15], 8 as u8);
         let val: Vec<u8> = "testtesttest".as_bytes().to_vec();
         let val = pad(val);
-        print_hex_aligned(&val);
+        // print_hex_aligned(&val);
         assert_eq!(val[15], 4 as u8);
         let val: Vec<u8> = "testtesttesttes".as_bytes().to_vec();
         let val = pad(val);
-        print_hex_aligned(&val);
+        // print_hex_aligned(&val);
         assert_eq!(val[15], 17);
         let val: Vec<u8> = "testtesttestte".as_bytes().to_vec();
         let val = pad(val);
-        print_hex_aligned(&val);
+        // print_hex_aligned(&val);
         assert_eq!(val[15], 2);
     }
 }

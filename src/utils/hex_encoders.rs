@@ -84,16 +84,16 @@ mod tests {
     pub fn test_str_to_hex_u8() {
         let input = "00112233445566778899aabbccddeeff";
         let input: Vec<u8> = str_to_hex_u8_buf(input);
-        for i in input {
-            print!("{:02x} ", i);
-        }
+        // for i in input {
+        //     print!("{:02x} ", i);
+        // }
     }
 
     #[test]
     pub fn test_alpha_to_hex() {
         let alpha = "abcdefghijklmnopqrstuvwxyz";
-        for a in alpha.chars() {
-            println!("{}", a);
-        }
+        // for a in alpha.chars() {
+        //     println!("{}", a);
+        // }
     }
 }

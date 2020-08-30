@@ -135,13 +135,13 @@ mod tests {
         let expanded = expand(&key);
         assert_eq!(expanded.len(), (52 * 4));
         
-        for x in 0..expanded.len() {
-            if x % 4 == 0 {
-                println!();
-                print!("{} ", (x/4) + 1);
-            }
-            print!("{:02x}", expanded[x]);
-        }
+        // for x in 0..expanded.len() {
+        //     if x % 4 == 0 {
+        //         println!();
+        //         print!("{} ", (x/4) + 1);
+        //     }
+        //     print!("{:02x}", expanded[x]);
+        // }
     }
 
     #[test]
@@ -153,12 +153,12 @@ mod tests {
         let expanded = expand(&key);
         assert_eq!(expanded.len(), (60 * 4));
         
-        for x in 0..expanded.len() {
-            if x % 4 == 0 {
-                println!();
-                print!("{} ", (x/4) + 1);
-            }
-            print!("{:02x}", expanded[x]);
-        }
+        // for x in 0..expanded.len() {
+        //     if x % 4 == 0 {
+        //         println!();
+        //         print!("{} ", (x/4) + 1);
+        //     }
+        //     print!("{:02x}", expanded[x]);
+        // }
     }
 }
