@@ -67,6 +67,22 @@ fn test_cbc_encrypt_16_bit_key() {
 
 
 #[test]
+fn test_ecb_encrypt_1Mx_32_bit_key() {
+    let message: Vec<u8> = "This is a test message that will be encrypted. The message is encrypted by rusty aes.".as_bytes().to_vec();
+    let key: Vec<u8> = "THISISA32BYTEKEYWEWUSEFORENCRYPT".as_bytes().to_vec();
+    let mut e: Encrypt = Encrypt::ecb(key.clone());
+
+    let mut count = 0;
+    while count < 1_000_000 {
+        e.encrypt(&message);
+        count +=1;
+    }
+
+    // println!("{}", print_vec(&results));
+}
+
+
+#[test]
 fn test_ecb_encrypt_32_bit_key() {
     let message: Vec<u8> = "This is a test message that will be encrypted. The message is encrypted by rusty aes.".as_bytes().to_vec();
     let key: Vec<u8> = "THISISA32BYTEKEYWEWUSEFORENCRYPT".as_bytes().to_vec();
