@@ -1,7 +1,4 @@
-use crate::decrypt::Decrypt;
-use crate::utils::{tables, padder};
-use crate::decrypt_funcs::{inv_mix_cols, inv_shift_rows};
-use crate::encrypt_funcs::{key_sch, add_round_key};
+use crate::prelude::*;
 
 pub fn run(e: Decrypt, input: Vec<u8>) -> Vec<u8> {
     let mut buf: Vec<u8> = Vec::new();
@@ -98,6 +95,7 @@ mod tests {
 
 use crate::decrypt::Decrypt;
 use crate::encrypt::Encrypt;
+use crate::aes_mode::*;
 
     #[test]
     pub fn test_decrypt_small() {
@@ -108,7 +106,7 @@ use crate::encrypt::Encrypt;
         input.push(0x80);
         let text: String = input.iter().map(|x| *x as char).collect();
         
-        let mut e: Encrypt = Encrypt::ecb(key.clone());
+        let mut e: Encrypt = Encrypt::ecb(key.clone(), AesMode::ECB);
         let cipher_text: Vec<u8> = e.encrypt(&input);
 
         let d: Decrypt = Decrypt::ecb(key);

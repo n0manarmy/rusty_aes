@@ -1,4 +1,3 @@
-
 pub fn e_box(val: u8) -> u8 {
 
     let xy_idx = box_xy_idx(val);
@@ -163,7 +162,7 @@ mod tests {
     #[test]
     pub fn test_s_box() {
         let state: Vec<u8> = vec![0xD4, 0xBF, 0x5D, 0x30, 0xD4, 0xBF, 0x5D, 0x30, 0xD4, 0xBF, 0x5D, 0x30, 0xD4, 0xBF, 0x5D, 0x30];
-        let state: Vec<u8> = state.iter().map(|x| s_box(*x)).collect();
+        let _state: Vec<u8> = state.iter().map(|x| s_box(*x)).collect();
 
         // for x in 0..state.len() {
         //     if x % 4 == 0 {
@@ -179,7 +178,7 @@ mod tests {
     #[test]
     pub fn test_inv_s_box() {
         let state: Vec<u8> = vec![0xD4, 0xBF, 0x5D, 0x30, 0xD4, 0xBF, 0x5D, 0x30, 0xD4, 0xBF, 0x5D, 0x30, 0xD4, 0xBF, 0x5D, 0x30];
-        let state: Vec<u8> = state.iter().map(|x| inv_s_box(*x)).collect();
+        let _state: Vec<u8> = state.iter().map(|x| inv_s_box(*x)).collect();
 
         // for x in 0..state.len() {
         //     if x % 4 == 0 {
@@ -193,7 +192,7 @@ mod tests {
 
     #[test]
     pub fn test_l_box_lookup() {
-        let val: Vec<u8> = vec![0xd4, 0x02, 0xbf, 0x03, 0x5d, 0x30];
+        let _val: Vec<u8> = vec![0xd4, 0x02, 0xbf, 0x03, 0x5d, 0x30];
         // for v in val {
         //     println!("{:02x}", l_box(v));
         // }
@@ -202,7 +201,7 @@ mod tests {
 
     #[test]
     pub fn test_get_sbox() {
-        let val: Vec<u8> = vec![0xff, 0xff, 0xff, 0xff, 0xff];
+        let _val: Vec<u8> = vec![0xff, 0xff, 0xff, 0xff, 0xff];
         // for v in val {
         //     println!("{:02x}", s_box(v));
         // }
