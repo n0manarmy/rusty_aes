@@ -24,8 +24,12 @@ pub fn str_to_hex_val(buf: String) -> Vec<u32> {
 pub fn ascii_to_ascii_hex(buf: &str) -> String {
     let mut r: String = String::new();
     use std::fmt::Write as FmtWrite;
+
     for b in buf.as_bytes() {
-        write!(r, "{:02x}", b);
+        match write!(r, "{:02x}", b) {
+            Ok(_k) => (),
+            Err(why) => panic!("Error writing: {}", why),
+        }
     }
 
     r
@@ -81,9 +85,16 @@ mod tests {
     use super::*;
 
     #[test]
+    pub fn test_ascii_to_ascii_hex() {
+        let buf = "00112233445566778899aabbccddeeff";
+        let results = ascii_to_ascii_hex(&buf);
+        dbg!(results);
+    }
+     
+    #[test]
     pub fn test_str_to_hex_u8() {
         let input = "00112233445566778899aabbccddeeff";
-        let input: Vec<u8> = str_to_hex_u8_buf(input);
+        let _input: Vec<u8> = str_to_hex_u8_buf(input);
         // for i in input {
         //     print!("{:02x} ", i);
         // }
@@ -91,7 +102,7 @@ mod tests {
 
     #[test]
     pub fn test_alpha_to_hex() {
-        let alpha = "abcdefghijklmnopqrstuvwxyz";
+        let _alpha = "abcdefghijklmnopqrstuvwxyz";
         // for a in alpha.chars() {
         //     println!("{}", a);
         // }

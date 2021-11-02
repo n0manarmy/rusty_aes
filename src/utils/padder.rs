@@ -1,5 +1,3 @@
-use crate::utils::printer::*;
-
 /// pad takes len and buf and appends to fill buffer to correct length
 /// 
 /// # Arguments
@@ -79,7 +77,6 @@ pub fn clear_padding(mut buf: Vec<u8>) -> Vec<u8> {
 mod tests {
 
     use super::*;
-    use crate::utils::printer::*;
 
     #[test]
     pub fn test_pad() {

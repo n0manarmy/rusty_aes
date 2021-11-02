@@ -1,4 +1,4 @@
-use crate::utils::tables as tbl;
+use crate::prelude::*;
 
 pub fn byte_sub(word: u32) -> u32 {
     let mut temp_vec: Vec<u8> = Vec::new();
@@ -9,7 +9,7 @@ pub fn byte_sub(word: u32) -> u32 {
     temp_vec.push(((word & 0xFF00) >> 8) as u8);
     temp_vec.push((word & 0xFF) as u8);
     for t in 0..temp_vec.len() {
-        temp_val |= tbl::s_box(temp_vec[t]) as u32;
+        temp_val |= s_box(temp_vec[t]) as u32;
         if t == 3 {
             break;
         }

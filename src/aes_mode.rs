@@ -1,4 +1,5 @@
 pub enum AesMode {
-    ECB,
-    CBC,
+    ECB, //serial
+    ECBP, //parallel
+    CBC, //serial
 }

@@ -7,11 +7,11 @@ pub fn read_dev_random(size: usize) -> Vec<u8>{
         let path = "/dev/random";
         let mut file_reader = match File::open(path) {
             Ok(k) => k,
-            Err(why) => panic!(why),
+            Err(why) => panic!("{}", why),
         };
         match file_reader.read_exact(&mut buf_vec) {
             Ok(b) => b,
-            Err(why) => panic!(why),
+            Err(why) => panic!("{}", why),
         };
     }
     assert_eq!(buf_vec.len(), size);
@@ -24,11 +24,11 @@ pub fn read_dev_urandom(size: usize) -> Vec<u8>{
         let path = "/dev/urandom";
         let mut file_reader = match File::open(path) {
             Ok(k) => k,
-            Err(why) => panic!(why),
+            Err(why) => panic!("{}", why),
         };
         match file_reader.read_exact(&mut buf_vec) {
             Ok(b) => b,
-            Err(why) => panic!(why),
+            Err(why) => panic!("{}", why),
         };
     }
     assert_eq!(buf_vec.len(), size);

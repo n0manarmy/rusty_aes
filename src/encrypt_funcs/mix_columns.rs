@@ -1,6 +1,4 @@
-use crate::utils::helper::xy_idx;
-use crate::decrypt_funcs::galois_mult;
-use crate::utils::tables as tbl;
+use crate::prelude::*;
 
 pub fn table_mix(state: Vec<u8>) -> Vec<u8> {
     // println!("##### start mix column");
@@ -22,10 +20,10 @@ pub fn table_mix(state: Vec<u8>) -> Vec<u8> {
 }
 
 fn p_operate(state: &Vec<u8>, y: i32, col: usize) -> u8 {
-    let t1 = galois_mult::gmul(state[xy_idx(0, y)], tbl::m_mtrx(0, col));
-    let t2 = galois_mult::gmul(state[xy_idx(1, y)], tbl::m_mtrx(1, col));
-    let t3 = galois_mult::gmul(state[xy_idx(2, y)], tbl::m_mtrx(2, col));
-    let t4 = galois_mult::gmul(state[xy_idx(3, y)], tbl::m_mtrx(3, col));
+    let t1 = galois_mult::gmul(state[xy_idx(0, y)], m_mtrx(0, col));
+    let t2 = galois_mult::gmul(state[xy_idx(1, y)], m_mtrx(1, col));
+    let t3 = galois_mult::gmul(state[xy_idx(2, y)], m_mtrx(2, col));
+    let t4 = galois_mult::gmul(state[xy_idx(3, y)], m_mtrx(3, col));
     // println!("t1: {:02x} t2: {:02x} t3: {:02x} t4: {:02x} ", t1, t2, t3, t4);
     t1 ^ t2 ^ t3 ^ t4
 }
@@ -43,7 +41,6 @@ fn p_operate(state: &Vec<u8>, y: i32, col: usize) -> u8 {
 mod tests {
 
     use super::*;
-    use crate::utils::printer::print_state;
     
     #[test]
     pub fn test_mix_column() {

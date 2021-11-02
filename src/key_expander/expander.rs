@@ -1,5 +1,4 @@
-use crate::key_expander::helper::{ek, rot_word, rcon, collect_to_vec, k};
-use crate::encrypt_funcs;
+use crate::prelude::*;
 
 pub fn expand(key: &Vec<u8>) -> Vec<u8> {
 
@@ -33,7 +32,7 @@ pub fn expand(key: &Vec<u8>) -> Vec<u8> {
         // print!("ekf: {:08x} ", ek_first);
         let ek_first = rot_word(ek_first);
         // print!("rot: {:08x} ", ek_first);
-        let ek_first = encrypt_funcs::byte_sub::byte_sub(ek_first);
+        let ek_first = byte_sub::byte_sub(ek_first);
         // print!("sub: {:08x} ", ek_first);
         let rconned = rcon(x, key.len());
         // print!("rcn: {:08x} ", rconned);
@@ -81,8 +80,6 @@ pub fn expand(key: &Vec<u8>) -> Vec<u8> {
 mod tests {
 
     use super::*;
-    use crate::utils::printer::print_state;
-    use crate::utils::hex_encoders;
     use crate::test_vals::test_tables;
 
     #[test]

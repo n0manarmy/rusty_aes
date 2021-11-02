@@ -67,7 +67,6 @@ pub fn shift(state: Vec<u8>) -> Vec<u8> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::utils::printer::print_state;
 
     #[test]
     pub fn test_inv_s_row() {

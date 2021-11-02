@@ -1,5 +1,5 @@
 use crate::rand::prelude::*;
-use crate::utils::file_helper;
+use crate::prelude::*;
 
 pub fn get_iv(size: usize) -> Vec<u8> {
     file_helper::read_dev_random(size)

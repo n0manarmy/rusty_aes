@@ -1,13 +1,16 @@
 extern crate rusty_aes;
 extern crate rand;
 
-use std::thread;
-
+use crate::rusty_aes::prelude::*;
 use crate::rand::prelude::*;
 use std::io::prelude::*;
-use crate::rusty_aes::encrypt::{Encrypt, InitializationValue};
-use crate::rusty_aes::decrypt::Decrypt;
-use crate::rusty_aes::utils::{iv_builder, printer::*};
+
+use log::{info};
+
+fn logger_setup() {
+    LogBuilder::build_logger(LogLevel::Debug);
+    info!("Logger started");
+}
 
 #[test]
 fn test_ecb_decrypt_openssl_file() {
@@ -68,9 +71,11 @@ fn test_cbc_encrypt_16_bit_key() {
 
 #[test]
 fn test_ecb_encrypt_1Mx_32_bit_key() {
+
+    logger_setup();
     let message: Vec<u8> = "This is a test message that will be encrypted. The message is encrypted by rusty aes.".as_bytes().to_vec();
     let key: Vec<u8> = "THISISA32BYTEKEYWEWUSEFORENCRYPT".as_bytes().to_vec();
-    let mut e: Encrypt = Encrypt::ecb(key.clone());
+    let mut e: Encrypt = Encrypt::ecb(key.clone(), AesMode::ECB);
 
     let mut count = 0;
     while count < 1_000_000 {
@@ -86,7 +91,7 @@ fn test_ecb_encrypt_1Mx_32_bit_key() {
 fn test_ecb_encrypt_32_bit_key() {
     let message: Vec<u8> = "This is a test message that will be encrypted. The message is encrypted by rusty aes.".as_bytes().to_vec();
     let key: Vec<u8> = "THISISA32BYTEKEYWEWUSEFORENCRYPT".as_bytes().to_vec();
-    let mut e: Encrypt = Encrypt::ecb(key.clone());
+    let mut e: Encrypt = Encrypt::ecb(key.clone(), AesMode::ECB);
     let cipher_text = e.encrypt(&message);
 
     let d: Decrypt = Decrypt::ecb(key);
@@ -100,7 +105,7 @@ fn test_ecb_encrypt_32_bit_key() {
 fn test_ecb_encrypt_24_bit_key_with_single() {
     let message: Vec<u8> = "This".as_bytes().to_vec();
     let key: Vec<u8> = "THISISTHE24BYTEKEYWEWUSE".as_bytes().to_vec();
-    let mut e: Encrypt = Encrypt::ecb(key.clone());
+    let mut e: Encrypt = Encrypt::ecb(key.clone(), AesMode::ECB);
     let cipher_text = e.encrypt(&message);
 
     let d: Decrypt = Decrypt::ecb(key);
@@ -114,7 +119,7 @@ fn test_ecb_encrypt_24_bit_key_with_single() {
 fn test_ecb_encrypt_24_bit_key() {
     let message: Vec<u8> = "This is a test message that will be encrypted. The message is encrypted by rusty aes.".as_bytes().to_vec();
     let key: Vec<u8> = "THISISTHE24BYTEKEYWEWUSE".as_bytes().to_vec();
-    let mut e: Encrypt = Encrypt::ecb(key.clone());
+    let mut e: Encrypt = Encrypt::ecb(key.clone(), AesMode::ECB);
     let cipher_text = e.encrypt(&message);
 
     let d: Decrypt = Decrypt::ecb(key);
@@ -128,7 +133,7 @@ fn test_ecb_encrypt_24_bit_key() {
 fn test_ecb_encrypt_16_bit_key() {
     let message: Vec<u8> = "This is a test message that will be encrypted. The message is encrypted by rusty aes.".as_bytes().to_vec();
     let key: Vec<u8> = "THISISA16BYTEKEY".as_bytes().to_vec();
-    let mut e: Encrypt = Encrypt::ecb(key.clone());
+    let mut e: Encrypt = Encrypt::ecb(key.clone(), AesMode::ECB);
     let cipher_text = e.encrypt(&message);
 
     let d: Decrypt = Decrypt::ecb(key);
@@ -149,7 +154,7 @@ fn test_ecb_encrypt_decrypt_cycling() {
 
         let key: Vec<u8> = iv_builder::get_random_bites(16);
         let o_input: Vec<u8> = iv_builder::fill_with_random_bites(&buffer, rando.gen_range(1, 500));
-        let mut e: Encrypt = Encrypt::ecb(key.clone());
+        let mut e: Encrypt = Encrypt::ecb(key.clone(), AesMode::ECB);
 
         let cipher_text = e.encrypt(&o_input);
         
@@ -161,10 +166,10 @@ fn test_ecb_encrypt_decrypt_cycling() {
         } else {
             println!("Decrypt failed");
             println!("original input:");
-            print_hex_aligned(&o_input);
+            printer::print_hex_aligned(&o_input);
             println!(); 
             println!("results:");
-            print_hex_aligned(&results);
+            printer::print_hex_aligned(&results);
             break;
         }
 

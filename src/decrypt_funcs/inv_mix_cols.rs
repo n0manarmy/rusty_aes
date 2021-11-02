@@ -1,6 +1,8 @@
-use super::*;
-use crate::utils::tables as tbl;
-use crate::utils::helper::xy_idx;
+// use super::*;
+// use crate::utils::tables as tbl;
+// use crate::utils::helper::xy_idx;
+
+use crate::prelude::*;
 
 pub fn mix(state: Vec<u8>) -> Vec<u8> {
     // println!("##### start mix column");
@@ -23,10 +25,10 @@ pub fn mix(state: Vec<u8>) -> Vec<u8> {
 
 
 fn p_operate(state: &Vec<u8>, y: i32, row: usize) -> u8 {
-    let t1 = galois_mult::gmul(state[xy_idx(0, y)], tbl::inv_m_mtrx(row, 0));
-    let t2 = galois_mult::gmul(state[xy_idx(1, y)], tbl::inv_m_mtrx(row, 1));
-    let t3 = galois_mult::gmul(state[xy_idx(2, y)], tbl::inv_m_mtrx(row, 2));
-    let t4 = galois_mult::gmul(state[xy_idx(3, y)], tbl::inv_m_mtrx(row, 3));
+    let t1 = galois_mult::gmul(state[xy_idx(0, y)], inv_m_mtrx(row, 0));
+    let t2 = galois_mult::gmul(state[xy_idx(1, y)], inv_m_mtrx(row, 1));
+    let t3 = galois_mult::gmul(state[xy_idx(2, y)], inv_m_mtrx(row, 2));
+    let t4 = galois_mult::gmul(state[xy_idx(3, y)], inv_m_mtrx(row, 3));
     t1 ^ t2 ^ t3 ^ t4
 }
 
@@ -34,8 +36,6 @@ fn p_operate(state: &Vec<u8>, y: i32, row: usize) -> u8 {
 mod tests {
 
     use super::*;
-    use crate::utils::printer::print_state;
-
 
     #[test]
     pub fn test_inv_mix_column() {

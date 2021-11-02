@@ -1,6 +1,4 @@
-use crate::key_expander::expander;
-use crate::modes;
-use crate::aes_mode::AesMode;
+use crate::prelude::*;
 
 pub struct Decrypt {
     pub expanded_key: Vec<u8>,
@@ -43,8 +41,9 @@ impl Decrypt {
     
     pub fn decrypt(self, input: Vec<u8>) -> Vec<u8> {
         match self.mode {
-            AesMode::ECB => modes::ecb_decrypt::run(self, input),
-            AesMode::CBC => modes::cbc_decrypt::run(&self, input),
+            AesMode::ECB => ecb_decrypt::run(self, input),
+            AesMode::CBC => cbc_decrypt::run(&self, input),
+            _ => panic!("Unexpected path in decrypt"),
         }
     }
 }
@@ -53,8 +52,6 @@ impl Decrypt {
 mod tests {
 
 use super::*;
-use crate::utils::{hex_encoders, printer};
-
 
     #[test]
     pub fn ietf_cbc_128_decrypt_test() {
@@ -77,7 +74,7 @@ use crate::utils::{hex_encoders, printer};
         let key: Vec<u8> = "YELLOW SUBMARINE".as_bytes().to_vec();
         let decrypt: Decrypt = Decrypt::ecb(key);
 
-        let results = decrypt.decrypt(input);
+        let _results = decrypt.decrypt(input);
         // dbg!(results);
         // dbg!(iv);
         // printer::print_hex_aligned(&results);
@@ -96,7 +93,7 @@ use crate::utils::{hex_encoders, printer};
         let iv: Vec<u8> = hex_encoders::str_to_hex_u8_buf("3bd9688be939895e463491759d30a92d");
         let decrypt: Decrypt = Decrypt::cbc(key, iv);
 
-        let results = decrypt.decrypt(input);
+        let _results = decrypt.decrypt(input);
         // dbg!(results);
         // dbg!(iv);
         // printer::print_hex_aligned(&results);

@@ -28,12 +28,11 @@ pub fn shift(state: Vec<u8>) -> Vec<u8> {
 mod tests {
     
     use super::*;
-    use crate::utils::printer::print_state;
     #[test]
     pub fn test_shift_row() {
         let state: Vec<u8> = vec![1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16];
         // print_state(&state);
-        let state = shift(state);
+        let _state = shift(state);
         // print_state(&state);
     }
 }

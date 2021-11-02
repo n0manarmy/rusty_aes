@@ -1,9 +1,4 @@
-// use crate::utils::helper;
-use crate::utils::{tables, padder};
-use crate::encrypt::Encrypt;
-// use crate::test_vals::test_tables::cipher_128;
-use crate::utils::printer::print_state;
-use crate::encrypt_funcs::{add_round_key, key_sch, mix_columns, shift_rows};
+use crate::prelude::*;
 
 pub fn run(e: &Encrypt, input: &Vec<u8>, init_iv: Vec<u8>) -> Vec<u8> {
     let mut count = 0;
@@ -95,7 +90,7 @@ fn encrypt(expanded_key: &Vec<u8>, rounds: u32, input: Vec<u8>) -> Vec<u8> {
         // print_state(&state);
     }
 
-    x += 1;
+    // x += 1;
     // print!("\n{} - s_box", x);
     state = state.iter().map(|x| tables::s_box(*x)).collect();
     // print_state(&state);
@@ -118,8 +113,6 @@ fn encrypt(expanded_key: &Vec<u8>, rounds: u32, input: Vec<u8>) -> Vec<u8> {
 mod tests {
 
     use super::*;
-    use crate::encrypt::InitializationValue;
-    use crate::utils::{iv_builder, hex_encoders};
 
     #[test]
     pub fn test_encrypt_128_cbc() {

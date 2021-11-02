@@ -39,7 +39,6 @@ pub fn overflow_check(x: u8, y: u8) -> u8 {
 mod tests {
 
     use super::*;
-    use crate::utils::printer;
 
     #[test]
     pub fn test_xy_idx() {

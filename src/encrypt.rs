@@ -1,7 +1,11 @@
-use crate::key_expander::expander;
-use crate::modes;
-use crate::aes_mode::AesMode;
-use crate::utils::iv_builder;
+// extern crate rusty_aes;
+
+use crate::prelude::*;
+
+// use crate::key_expander::expander;
+// use crate::modes;
+// use crate::aes_mode::AesMode;
+// use crate::utils::iv_builder;
 
 /// Manages the state of the IV 
 pub enum InitializationValue {
@@ -40,12 +44,12 @@ impl Encrypt {
     /// let key: Vec<u8> = "MYSIXTEENBYTEKEY".as_bytes().to_vec();
     /// let encryptor: Encryt = Encrypt::new(key)
     /// ```
-    pub fn ecb(key: Vec<u8>) -> Encrypt {
+    pub fn ecb(key: Vec<u8>, mode: AesMode) -> Encrypt {
         Encrypt {
             key: key.clone(),
             expanded_key: expander::expand(&key),
             rounds: Self::get_rounds(key.len()),
-            mode: AesMode::ECB,
+            mode,
             iv: InitializationValue::None,
         }
     }
@@ -107,15 +111,15 @@ impl Encrypt {
     /// 
     pub fn encrypt(&mut self, input: &Vec<u8>) -> Vec<u8> {
         match self.mode {
-            AesMode::ECB => modes::ecb_encrypt::run(&self, &input),
-
+            AesMode::ECBP => ecb_encrypt_para::coach(&self, &input),
+            AesMode::ECB => ecb_encrypt::run(&self, &input),
             AesMode::CBC => {
                 let iv: Vec<u8> = match &self.iv {
                     InitializationValue::None => iv_builder::get_iv(self.key.len()),
                     InitializationValue::IV(v) => v.clone(),
                 };
                 self.iv = InitializationValue::IV(iv.clone());
-                modes::cbc_encrypt::run(&self, &input, iv)
+                cbc_encrypt::run(&self, &input, iv)
             },
         }
     }
@@ -137,19 +141,16 @@ use crate::utils::printer;
         let mut encryptor: Encrypt = Encrypt::cbc(key, iv);
         let results = encryptor.encrypt(&input);
         assert_eq!(results, cipher_answer);
-        // printer::print_hex_aligned(&results);
-
-
-
+        printer::print_hex_aligned(&results);
     }
 
     #[test]
     pub fn test_ecb_encrypt() {
         let input: Vec<u8> = "This is a test of the ability to encrypt and then decrypt the message".as_bytes().to_vec();
         let key: Vec<u8> = "YELLOW SUBMARINE".as_bytes().to_vec();
-        let mut encryptor: Encrypt = Encrypt::ecb(key);
+        let mut encryptor: Encrypt = Encrypt::ecb(key, AesMode::ECB);
 
-        let results = encryptor.encrypt(&input);
+        let _results = encryptor.encrypt(&input);
         // dbg!(results);
         // dbg!(iv);
         // printer::print_hex_aligned(&results);
@@ -161,7 +162,7 @@ use crate::utils::printer;
         let key: Vec<u8> = "YELLOW SUBMARINE".as_bytes().to_vec();
         let mut encryptor: Encrypt = Encrypt::cbc(key, InitializationValue::None);
 
-        let results = encryptor.encrypt(&input);
+        let _results = encryptor.encrypt(&input);
         // dbg!(results);
         // dbg!(iv);
         // printer::print_hex_aligned(&results);
