@@ -21,7 +21,7 @@ fn test_ecb_decrypt_openssl_file() {
 
     let key = "YELLOW_SUBMARINE";
     let d: Decrypt = Decrypt::ecb(key.as_bytes().to_vec());
-    let results = d.decrypt(buffer);
+    let _results = d.decrypt(buffer);
     // println!("{}", print_vec(&results));
 
 }
@@ -70,7 +70,7 @@ fn test_cbc_encrypt_16_bit_key() {
 
 
 #[test]
-fn test_ecb_encrypt_1Mx_32_bit_key() {
+fn test_ecb_encrypt_1mx_32_bit_key() {
 
     logger_setup();
     let message: Vec<u8> = "This is a test message that will be encrypted. The message is encrypted by rusty aes.".as_bytes().to_vec();

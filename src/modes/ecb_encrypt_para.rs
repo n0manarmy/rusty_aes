@@ -90,38 +90,6 @@ pub fn run(e: &Encrypt, chunks: &Vec<Chunk>) -> Vec<u8> {
 
     }
 
-    // while input_consumed < input.len() {
-    //     let mut cipher_text: Vec<u8>;
-    //     let end_next_chunk = input_consumed + 16;
-
-    //     if end_next_chunk >= input.len() {
-    //         //fill cipher_text with last of input
-    //         cipher_text = input[input_consumed..input.len()].to_vec();
-    //         //pad cipher_text with padding bits
-    //         cipher_text = padder::pad(cipher_text);
-    //         //check for single character padding that pads an additional block
-    //         if cipher_text.len() == 16 * 2 {
-    //             //we encrypt the padded cipher_text
-    //             let (first, second) = cipher_text.split_at(16);
-    //             let first = encrypt(&e.expanded_key, e.rounds, first.to_vec());
-    //             let second = encrypt(&e.expanded_key, e.rounds, second.to_vec());
-    //             cipher_text = [first, second].concat();
-                
-    //         } else {
-    //             //we encrypt the padded cipher_text
-    //             cipher_text = encrypt(&e.expanded_key, e.rounds, cipher_text);
-    //         }
-            
-    //     }
-    //     else {
-    //         cipher_text = input[input_consumed..end_next_chunk].to_vec();
-    //         cipher_text = encrypt(&e.expanded_key, e.rounds, cipher_text); 
-    //     }
-
-    //     buf.append(&mut cipher_text);
-    //     input_consumed += 16;
-    // }
-
     _buf
 }
 /// Performs the encryption process based on the NIST documentation
